@@ -30,8 +30,8 @@ export function Company() {
           <div className="about-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 0, border: '1px solid var(--line)', borderRadius: 'var(--r-lg)', overflow: 'hidden', background: 'var(--surface)', marginBottom: 64 }}>
             {stats.map((s, i) => (
               <div key={i} className="col" style={{ gap: 6, padding: '32px 26px', borderRight: i < 3 ? '1px solid var(--line)' : 'none' }}>
-                <span className="display" style={{ fontSize: 38, color: 'var(--accent-press)' }}>{t(s.v)}</span>
-                <span className="mono" style={{ fontSize: 12.5, color: 'var(--t-muted)' }}>{t(s.l)}</span>
+                <span className="display" style={{ fontSize: 38, color: 'var(--accent-press)' }}>{s.v}</span>
+                <span className="mono" style={{ fontSize: 12.5, color: 'var(--t-muted)' }}>{s.l}</span>
               </div>
             ))}
           </div>

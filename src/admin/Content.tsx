@@ -6,7 +6,7 @@ import {
   AdmIcon, PageHead, Field, TextInput, TextArea, Toggle, useToast,
 } from './shared';
 import type { AdminSection, ContentData, StoreSettings, AccentKey } from './types';
-import type { Stat } from '../types';
+import type { SiteStat } from '../data/siteStats';
 
 interface Props {
   section: 'content' | 'settings';
@@ -36,12 +36,12 @@ function ContentSection({ t }: { t: (s: string) => string }) {
   const { content, setContent, stats, setStats } = useStore();
   const toast = useToast();
   const [form, setForm] = useState<ContentData>({ ...content });
-  const [statsForm, setStatsForm] = useState<Stat[]>(() => stats.map((s) => ({ ...s })));
+  const [statsForm, setStatsForm] = useState<SiteStat[]>(() => stats.map((s) => ({ ...s })));
 
   const set = (k: keyof ContentData, v: string) =>
     setForm((p) => ({ ...p, [k]: v }));
 
-  const setStat = (i: number, k: keyof Stat, v: string) =>
+  const setStat = (i: number, k: keyof SiteStat, v: string) =>
     setStatsForm((p) => p.map((s, idx) => (idx === i ? { ...s, [k]: v } : s)));
 
   const handleSave = () => {
@@ -91,19 +91,33 @@ function ContentSection({ t }: { t: (s: string) => string }) {
         </div>
         <div className="adm-card-body col" style={{ gap: 14 }}>
           <p style={{ fontSize: 13, color: 'var(--t-muted)', margin: 0 }}>
-            {t('Блок цифр на главной и «О компании».')}
+            {t('Блок цифр на главной и «О компании». Заполните оба языка — на сайте показывается версия активного языка.')}
           </p>
           {statsForm.map((s, i) => (
-            <div key={i} className="row" style={{ gap: 14, alignItems: 'flex-end' }}>
-              <div style={{ width: 170 }}>
-                <Field label={t('Значение')}>
-                  <TextInput value={s.v} onChange={(e) => setStat(i, 'v', e.target.value)} placeholder="1 570+" />
-                </Field>
+            <div key={i} className="col" style={{ gap: 8, paddingTop: i > 0 ? 14 : 0, borderTop: i > 0 ? '1px solid var(--line)' : 'none' }}>
+              <div className="row" style={{ gap: 14, alignItems: 'flex-end' }}>
+                <div style={{ width: 170 }}>
+                  <Field label={`${t('Значение')} · RU`}>
+                    <TextInput value={s.v} onChange={(e) => setStat(i, 'v', e.target.value)} placeholder="1 570+" />
+                  </Field>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <Field label={`${t('Подпись')} · RU`}>
+                    <TextInput value={s.l} onChange={(e) => setStat(i, 'l', e.target.value)} placeholder="позиций на складе" />
+                  </Field>
+                </div>
               </div>
-              <div style={{ flex: 1 }}>
-                <Field label={t('Подпись')}>
-                  <TextInput value={s.l} onChange={(e) => setStat(i, 'l', e.target.value)} placeholder={t('позиций на складе')} />
-                </Field>
+              <div className="row" style={{ gap: 14, alignItems: 'flex-end' }}>
+                <div style={{ width: 170 }}>
+                  <Field label={`${t('Значение')} · EN`}>
+                    <TextInput value={s.vEn} onChange={(e) => setStat(i, 'vEn', e.target.value)} placeholder="1 570+" />
+                  </Field>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <Field label={`${t('Подпись')} · EN`}>
+                    <TextInput value={s.lEn} onChange={(e) => setStat(i, 'lEn', e.target.value)} placeholder="items in stock" />
+                  </Field>
+                </div>
               </div>
             </div>
           ))}

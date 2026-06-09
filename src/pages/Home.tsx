@@ -103,8 +103,8 @@ export function Home() {
           <div className="row stat-row" style={{ gap: 0, marginTop: 48, flexWrap: 'wrap' }}>
             {stats.map((s, i) => (
               <div key={i} className="col" style={{ gap: 4, padding: '0 36px 0 0', marginRight: 36, borderRight: i < 3 ? '1px solid var(--ink-line)' : 'none' }}>
-                <span className="display" style={{ fontSize: 32, color: 'var(--accent)' }}>{t(s.v)}</span>
-                <span className="mono" style={{ fontSize: 12, color: 'var(--t-on-dark-muted)' }}>{t(s.l)}</span>
+                <span className="display" style={{ fontSize: 32, color: 'var(--accent)' }}>{s.v}</span>
+                <span className="mono" style={{ fontSize: 12, color: 'var(--t-on-dark-muted)' }}>{s.l}</span>
               </div>
             ))}
           </div>

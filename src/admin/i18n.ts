@@ -243,7 +243,7 @@ const ADMIN_I18N_EN: Record<string, string> = {
 
   /* ---- stats editor ---- */
   'Статистика': 'Statistics',
-  'Блок цифр на главной и «О компании».': 'The numbers block on Home and About.',
+  'Блок цифр на главной и «О компании». Заполните оба языка — на сайте показывается версия активного языка.': 'The numbers block on Home and About. Fill in both languages — the site shows the version for the active language.',
   'Подпись': 'Caption',
 };
 

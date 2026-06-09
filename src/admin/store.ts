@@ -3,8 +3,7 @@
 
 import { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import { ELEZON_DATA } from '../data/catalog';
-import { SITE_STATS_KEY, defaultStats, readStats } from '../data/siteStats';
-import type { Stat } from '../types';
+import { SITE_STATS_KEY, defaultStats, readStats, type SiteStat } from '../data/siteStats';
 import type {
   AdminProduct,
   AdminCategory,
@@ -210,7 +209,7 @@ export interface AdminStore {
   customers: AdminCustomer[];
   content: ContentData;
   settings: StoreSettings;
-  stats: Stat[];
+  stats: SiteStat[];
 
   addProduct: (p: Omit<AdminProduct, 'id'>) => void;
   updateProduct: (id: string, patch: Partial<AdminProduct>) => void;
@@ -233,7 +232,7 @@ export interface AdminStore {
 
   setContent: (patch: Partial<ContentData>) => void;
   setSettings: (patch: Partial<StoreSettings>) => void;
-  setStats: (stats: Stat[]) => void;
+  setStats: (stats: SiteStat[]) => void;
 
   resetAll: () => void;
 }
@@ -249,7 +248,7 @@ export function useAdminStore(): AdminStore {
   const [customers, setCustomers]    = useState<AdminCustomer[]>(() => loadSlice('customers', seedCustomers));
   const [content, setContentState]   = useState<ContentData>(() => loadSlice('content', seedContent));
   const [settings, setSettingsState] = useState<StoreSettings>(() => loadSlice('settings', seedSettings));
-  const [stats, setStatsState]       = useState<Stat[]>(() => readStats());
+  const [stats, setStatsState]       = useState<SiteStat[]>(() => readStats());
 
   useEffect(() => { saveSlice('products',   products);   }, [products]);
   useEffect(() => { saveSlice('categories', categories); }, [categories]);
