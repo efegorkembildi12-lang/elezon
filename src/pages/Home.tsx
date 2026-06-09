@@ -7,11 +7,11 @@ import { SearchBox } from '../components/SearchBox';
 import { useGo } from '../lib/useGo';
 import { useSiteStats } from '../lib/useSiteStats';
 import { useI18n } from '../i18n/I18nContext';
-import { ELEZON_DATA } from '../data/catalog';
+import { useCatalog } from '../store/CatalogProvider';
 
 function BrandStrip({ dark }: { dark?: boolean }) {
   const { t } = useI18n();
-  const D = ELEZON_DATA;
+  const { brands } = useCatalog();
   const line = dark ? 'var(--ink-line)' : 'var(--line)';
   const col = dark ? 'var(--t-on-dark-muted)' : 'var(--t-muted)';
   return (
@@ -20,7 +20,7 @@ function BrandStrip({ dark }: { dark?: boolean }) {
         <span className="eyebrow" style={{ padding: '22px 28px 22px 0', color: col, borderRight: `1px solid ${line}`, whiteSpace: 'nowrap' }}>{t('Оригинальные бренды')}</span>
         <div className="brand-marquee" style={{ flex: 1, overflow: 'hidden', maskImage: 'linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)' }}>
           <div className="brand-track row" style={{ gap: 44 }}>
-            {[...D.brands, ...D.brands].map((b, i) => (
+            {[...brands, ...brands].map((b, i) => (
               <span key={i} style={{ fontFamily: 'var(--f-display)', fontWeight: 600, fontSize: 18, color: col, opacity: 0.8, whiteSpace: 'nowrap', padding: '22px 0' }}>{b}</span>
             ))}
           </div>
@@ -58,7 +58,8 @@ function TrustBar() {
 function ProductRail({ title, eyebrow }: { title: string; eyebrow: string }) {
   const go = useGo();
   const { t } = useI18n();
-  const items = ELEZON_DATA.products.filter((p) => p.stock === 'in').slice(0, 8);
+  const { products } = useCatalog();
+  const items = products.filter((p) => p.stock === 'in').slice(0, 8);
   return (
     <section className="section" style={{ paddingTop: 20 }}>
       <div className="wrap">
@@ -80,7 +81,7 @@ function ProductRail({ title, eyebrow }: { title: string; eyebrow: string }) {
 export function Home() {
   const go = useGo();
   const { t } = useI18n();
-  const D = ELEZON_DATA;
+  const { categories } = useCatalog();
   const stats = useSiteStats();
   return (
     <div className="rise">
@@ -122,13 +123,13 @@ export function Home() {
             </div>
           </div>
           <div className="cat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 18 }}>
-            {D.categories.map((c) => {
+            {categories.map((c) => {
               const CI = catIcon[c.id];
               return (
                 <a key={c.id} href="#" onClick={(e) => { e.preventDefault(); go('category', c); }}
                    className="card cat-card" style={{ padding: 0, overflow: 'hidden', display: 'grid', gridTemplateColumns: '1fr 1.1fr', minHeight: 230 }}>
                   <div className="col" style={{ padding: '30px 28px', gap: 14, justifyContent: 'space-between' }}>
-                    <span style={{ width: 50, height: 50, borderRadius: 12, background: 'var(--ink)', color: 'var(--accent)', display: 'grid', placeItems: 'center' }}><CI width="26" height="26" /></span>
+                    <span style={{ width: 50, height: 50, borderRadius: 12, background: 'var(--ink)', color: 'var(--accent)', display: 'grid', placeItems: 'center' }}>{CI ? <CI width="26" height="26" /> : null}</span>
                     <div className="col" style={{ gap: 10 }}>
                       <div className="row" style={{ gap: 10 }}>
                         <h3 style={{ fontSize: 23 }}>{t(c.name)}</h3>
@@ -138,7 +139,7 @@ export function Home() {
                     </div>
                   </div>
                   <div className="ph" style={{ borderLeft: '1px solid var(--line)' }}>
-                    <CI width="64" height="64" style={{ color: 'var(--line-2)', strokeWidth: 1 }} />
+                    {CI ? <CI width="64" height="64" style={{ color: 'var(--line-2)', strokeWidth: 1 }} /> : null}
                   </div>
                 </a>
               );

@@ -1,7 +1,17 @@
+# dependencies
 node_modules
+node_modules/.tmp
+
+# build output
 dist
 dist-ssr
+.vite
+
+# local files
 *.local
 .DS_Store
-node_modules/.tmp
-.vite
+
+# env / secrets — never commit real keys
+.env
+.env.*
+!.env.example

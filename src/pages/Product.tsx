@@ -10,7 +10,7 @@ import { fmt } from '../lib/format';
 import { useGo } from '../lib/useGo';
 import { useI18n } from '../i18n/I18nContext';
 import { useRequestList } from '../store/RequestListContext';
-import { ELEZON_DATA } from '../data/catalog';
+import { useCatalog } from '../store/CatalogProvider';
 import type { Product as ProductType } from '../types';
 
 function QuoteForm({ p, onClose }: { p: ProductType | null; onClose: () => void }) {
@@ -60,21 +60,34 @@ export function Product() {
   const go = useGo();
   const { t } = useI18n();
   const rl = useRequestList();
-  const D = ELEZON_DATA;
+  const { products, categories, loading } = useCatalog();
   const { productId } = useParams<{ productId?: string }>();
-  const p = D.products.find((x) => x.id === productId) ?? D.products[0];
-  const inList = rl.has(p.id);
-  const cat = D.categories.find((c) => c.id === p.cat)!;
   const [tab, setTab] = useState('specs');
   const [quote, setQuote] = useState(false);
-  const related = D.products.filter((x) => x.cat === p.cat && x.id !== p.id).slice(0, 4);
+
+  const p = products.find((x) => x.id === productId) ?? products[0];
+
+  if (!p) {
+    return (
+      <div className="rise">
+        <div className="wrap" style={{ padding: '80px 32px', textAlign: 'center' }}>
+          <h1 className="display" style={{ fontSize: 28 }}>{loading ? '…' : t('Ничего не найдено')}</h1>
+          <button className="btn btn-accent" style={{ marginTop: 16 }} onClick={() => go('catalog')}>{t('Перейти в каталог')}</button>
+        </div>
+      </div>
+    );
+  }
+
+  const inList = rl.has(p.id);
+  const cat = categories.find((c) => c.id === p.cat) ?? categories[0] ?? null;
+  const related = products.filter((x) => x.cat === p.cat && x.id !== p.id).slice(0, 4);
 
   return (
     <div className="rise">
       <Breadcrumbs items={[
         { label: 'Главная', go: () => go('home') },
         { label: 'Каталог', go: () => go('catalog') },
-        { label: cat.short, go: () => go('category', cat) },
+        ...(cat ? [{ label: cat.short, go: () => go('category', cat) }] : []),
         { label: p.type },
       ]} />
 
@@ -185,7 +198,7 @@ export function Product() {
         <div className="wrap">
           <div className="section-head">
             <h2 className="display" style={{ fontSize: 34 }}>{t('Похожие позиции')}</h2>
-            <a href="#" onClick={(e) => { e.preventDefault(); go('category', cat); }} className="link-arrow">{t('Вся категория')} <Icon.arrow width="18" height="18" /></a>
+            {cat && <a href="#" onClick={(e) => { e.preventDefault(); go('category', cat); }} className="link-arrow">{t('Вся категория')} <Icon.arrow width="18" height="18" /></a>}
           </div>
           <div className="prod-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 18 }}>
             {related.map((r) => <ProductCard key={r.id} p={r} />)}

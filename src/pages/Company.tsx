@@ -5,11 +5,11 @@ import { PageHero } from '../components/PageHero';
 import { QuoteCTA } from '../components/QuoteCTA';
 import { useI18n } from '../i18n/I18nContext';
 import { useSiteStats } from '../lib/useSiteStats';
-import { ELEZON_DATA } from '../data/catalog';
+import { useCatalog } from '../store/CatalogProvider';
 
 export function Company() {
   const { t } = useI18n();
-  const D = ELEZON_DATA;
+  const { brands } = useCatalog();
   const stats = useSiteStats();
   const values = [
     { I: Icon.shield, t: 'Только оригинал', d: 'Поставляем оборудование официальных производителей с гарантией и документами.' },
@@ -70,7 +70,7 @@ export function Company() {
         <div className="wrap">
           <div className="section-head"><div className="col" style={{ gap: 12 }}><span className="eyebrow">{t('Производители')}</span><h2 className="display" style={{ fontSize: 34 }}>{t('Работаем с оригинальными брендами')}</h2></div></div>
           <div className="brand-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(6,1fr)', gap: 14 }}>
-            {D.brands.map((b) => (
+            {brands.map((b) => (
               <div key={b} className="card row" style={{ height: 88, justifyContent: 'center', padding: '0 18px', overflow: 'hidden' }}>
                 <img src={`/images/brand-${b.toLowerCase().replace(/\s+/g, '-')}.png`} alt={b} style={{ maxWidth: '100%', maxHeight: 52, objectFit: 'contain', display: 'block' }} />
               </div>

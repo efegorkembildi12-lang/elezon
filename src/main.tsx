@@ -6,6 +6,7 @@ import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 import { I18nProvider } from './i18n/I18nContext';
 import { RequestListProvider } from './store/RequestListContext';
+import { CatalogProvider } from './store/CatalogProvider';
 import './styles/tokens.css';
 import './styles/global.css';
 
@@ -16,9 +17,11 @@ createRoot(rootEl).render(
   <StrictMode>
     <BrowserRouter>
       <I18nProvider>
-        <RequestListProvider>
-          <App />
-        </RequestListProvider>
+        <CatalogProvider>
+          <RequestListProvider>
+            <App />
+          </RequestListProvider>
+        </CatalogProvider>
       </I18nProvider>
     </BrowserRouter>
   </StrictMode>,

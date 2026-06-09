@@ -9,6 +9,7 @@ import { useGo } from '../lib/useGo';
 import { useI18n } from '../i18n/I18nContext';
 import { useDebounce } from '../lib/useDebounce';
 import { searchSuggestions } from '../lib/search';
+import { useCatalog } from '../store/CatalogProvider';
 
 interface SearchBoxProps {
   variant: 'hero' | 'header';
@@ -31,13 +32,14 @@ export function SearchBox({ variant, autoFocus, onClose }: SearchBoxProps) {
   const go = useGo();
   const navigate = useNavigate();
   const { t } = useI18n();
+  const { products: allProducts, categories: allCategories } = useCatalog();
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1);
   const debounced = useDebounce(query, 140);
   const rootRef = useRef<HTMLDivElement>(null);
 
-  const { products, categories } = searchSuggestions(debounced, t, 6);
+  const { products, categories } = searchSuggestions(debounced, t, { products: allProducts, categories: allCategories }, 6);
   const flatLen = categories.length + products.length;
   const hasResults = flatLen > 0;
   const showPanel = open && debounced.trim().length > 0;

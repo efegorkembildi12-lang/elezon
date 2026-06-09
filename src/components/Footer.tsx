@@ -4,12 +4,12 @@ import { Icon } from './Icon';
 import { Logo } from './Logo';
 import { useGo } from '../lib/useGo';
 import { useI18n } from '../i18n/I18nContext';
-import { ELEZON_DATA } from '../data/catalog';
+import { useCatalog } from '../store/CatalogProvider';
 
 export function Footer() {
   const go = useGo();
   const { t } = useI18n();
-  const D = ELEZON_DATA;
+  const { categories } = useCatalog();
 
   const companyLinks: [string, string][] = [
     ['company', 'О компании'],
@@ -29,7 +29,7 @@ export function Footer() {
           </div>
           <div className="col" style={{ gap: 12 }}>
             <span className="eyebrow on-dark" style={{ marginBottom: 4 }}>{t('Каталог')}</span>
-            {D.categories.map((c) => (
+            {categories.map((c) => (
               <a key={c.id} href="#" onClick={(e) => { e.preventDefault(); go('category', c); }} style={{ fontSize: 14, color: 'var(--t-on-dark-muted)' }}>{t(c.name)}</a>
             ))}
           </div>

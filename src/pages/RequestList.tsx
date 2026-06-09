@@ -9,9 +9,9 @@ import { fmt } from '../lib/format';
 import { useGo } from '../lib/useGo';
 import { useI18n } from '../i18n/I18nContext';
 import { useRequestList } from '../store/RequestListContext';
+import { useCatalog } from '../store/CatalogProvider';
 import { toSpecCsv, downloadCsv } from '../lib/exportSpec';
 import { submitStorefrontRequest } from '../data/incomingRequests';
-import { ELEZON_DATA } from '../data/catalog';
 import type { Product as ProductType } from '../types';
 
 function QtyStepper({ qty, onChange }: { qty: number; onChange: (q: number) => void }) {
@@ -48,13 +48,13 @@ export function RequestList() {
   const go = useGo();
   const { t, lang } = useI18n();
   const rl = useRequestList();
-  const D = ELEZON_DATA;
+  const { products } = useCatalog();
   const [sent, setSent] = useState(false);
   const [form, setForm] = useState<ContactForm>(BLANK_FORM);
   const set = <K extends keyof ContactForm>(k: K, v: string) => setForm((p) => ({ ...p, [k]: v }));
 
   const rows: Row[] = rl.items
-    .map((it) => ({ ...it, p: D.products.find((x) => x.id === it.id) }))
+    .map((it) => ({ ...it, p: products.find((x) => x.id === it.id) }))
     .filter((r): r is Row => Boolean(r.p));
   const totalUnits = rows.reduce((s, r) => s + r.qty, 0);
 

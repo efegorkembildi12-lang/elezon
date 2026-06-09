@@ -9,7 +9,7 @@ import { fmt } from '../lib/format';
 import { useGo } from '../lib/useGo';
 import { matchProduct } from '../lib/search';
 import { useI18n } from '../i18n/I18nContext';
-import { ELEZON_DATA } from '../data/catalog';
+import { useCatalog } from '../store/CatalogProvider';
 
 function FilterChip({ label, count, active, onClick, dot }: { label: string; count?: number; active: boolean; onClick: () => void; dot?: boolean }) {
   const style: CSSProperties = {
@@ -31,7 +31,7 @@ function FilterChip({ label, count, active, onClick, dot }: { label: string; cou
 export function Catalog() {
   const go = useGo();
   const { t } = useI18n();
-  const D = ELEZON_DATA;
+  const D = useCatalog();
   const { categoryId } = useParams<{ categoryId?: string }>();
   const category = categoryId ? D.categories.find((c) => c.id === categoryId) ?? null : null;
 
