@@ -3,6 +3,8 @@
 
 import { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import { ELEZON_DATA } from '../data/catalog';
+import { SITE_STATS_KEY, defaultStats, readStats } from '../data/siteStats';
+import type { Stat } from '../types';
 import type {
   AdminProduct,
   AdminCategory,
@@ -208,6 +210,7 @@ export interface AdminStore {
   customers: AdminCustomer[];
   content: ContentData;
   settings: StoreSettings;
+  stats: Stat[];
 
   addProduct: (p: Omit<AdminProduct, 'id'>) => void;
   updateProduct: (id: string, patch: Partial<AdminProduct>) => void;
@@ -230,6 +233,7 @@ export interface AdminStore {
 
   setContent: (patch: Partial<ContentData>) => void;
   setSettings: (patch: Partial<StoreSettings>) => void;
+  setStats: (stats: Stat[]) => void;
 
   resetAll: () => void;
 }
@@ -245,6 +249,7 @@ export function useAdminStore(): AdminStore {
   const [customers, setCustomers]    = useState<AdminCustomer[]>(() => loadSlice('customers', seedCustomers));
   const [content, setContentState]   = useState<ContentData>(() => loadSlice('content', seedContent));
   const [settings, setSettingsState] = useState<StoreSettings>(() => loadSlice('settings', seedSettings));
+  const [stats, setStatsState]       = useState<Stat[]>(() => readStats());
 
   useEffect(() => { saveSlice('products',   products);   }, [products]);
   useEffect(() => { saveSlice('categories', categories); }, [categories]);
@@ -253,11 +258,12 @@ export function useAdminStore(): AdminStore {
   useEffect(() => { saveSlice('customers',  customers);  }, [customers]);
   useEffect(() => { saveSlice('content',    content);    }, [content]);
   useEffect(() => { saveSlice('settings',   settings);   }, [settings]);
+  useEffect(() => { try { localStorage.setItem(SITE_STATS_KEY, JSON.stringify(stats)); } catch { /* ignore */ } }, [stats]);
 
   const uid = useCallback((p: string) => p + '-' + Math.random().toString(36).slice(2, 8), []);
 
   return useMemo<AdminStore>(() => ({
-    products, categories, brands, orders, customers, content, settings,
+    products, categories, brands, orders, customers, content, settings, stats,
 
     addProduct:    (p) => setProducts((prev) => [{ ...p, id: uid('prod') }, ...prev]),
     updateProduct: (id, patch) => setProducts((prev) => prev.map((p) => p.id === id ? { ...p, ...patch } : p)),
@@ -280,11 +286,13 @@ export function useAdminStore(): AdminStore {
 
     setContent:  (patch) => setContentState((prev) => ({ ...prev, ...patch })),
     setSettings: (patch) => setSettingsState((prev) => ({ ...prev, ...patch })),
+    setStats:    (next) => setStatsState(next),
 
     resetAll: () => {
       ['products','categories','brands','orders','customers','content','settings'].forEach((k) => {
         try { localStorage.removeItem(KEY(k)); } catch { /* ignore */ }
       });
+      try { localStorage.removeItem(SITE_STATS_KEY); } catch { /* ignore */ }
       setProducts(seedProducts());
       setCategories(seedCategories());
       setBrands(seedBrands());
@@ -292,8 +300,9 @@ export function useAdminStore(): AdminStore {
       setCustomers(seedCustomers());
       setContentState(seedContent());
       setSettingsState(seedSettings());
+      setStatsState(defaultStats());
     },
-  }), [products, categories, brands, orders, customers, content, settings, uid]);
+  }), [products, categories, brands, orders, customers, content, settings, stats, uid]);
 }
 
 export function useStore(): AdminStore {

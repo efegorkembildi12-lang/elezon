@@ -4,11 +4,13 @@ import { Icon } from '../components/Icon';
 import { PageHero } from '../components/PageHero';
 import { QuoteCTA } from '../components/QuoteCTA';
 import { useI18n } from '../i18n/I18nContext';
+import { useSiteStats } from '../lib/useSiteStats';
 import { ELEZON_DATA } from '../data/catalog';
 
 export function Company() {
   const { t } = useI18n();
   const D = ELEZON_DATA;
+  const stats = useSiteStats();
   const values = [
     { I: Icon.shield, t: 'Только оригинал', d: 'Поставляем оборудование официальных производителей с гарантией и документами.' },
     { I: Icon.gauge, t: 'Инженерный подход', d: '14 лет в проектировании и монтаже инженерных систем — понимаем задачу заказчика.' },
@@ -26,7 +28,7 @@ export function Company() {
       <section className="section">
         <div className="wrap">
           <div className="about-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 0, border: '1px solid var(--line)', borderRadius: 'var(--r-lg)', overflow: 'hidden', background: 'var(--surface)', marginBottom: 64 }}>
-            {D.stats.map((s, i) => (
+            {stats.map((s, i) => (
               <div key={i} className="col" style={{ gap: 6, padding: '32px 26px', borderRight: i < 3 ? '1px solid var(--line)' : 'none' }}>
                 <span className="display" style={{ fontSize: 38, color: 'var(--accent-press)' }}>{t(s.v)}</span>
                 <span className="mono" style={{ fontSize: 12.5, color: 'var(--t-muted)' }}>{t(s.l)}</span>

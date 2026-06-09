@@ -4,6 +4,7 @@ import { Icon, catIcon } from '../components/Icon';
 import { ProductCard } from '../components/ProductCard';
 import { QuoteCTA } from '../components/QuoteCTA';
 import { useGo } from '../lib/useGo';
+import { useSiteStats } from '../lib/useSiteStats';
 import { useI18n } from '../i18n/I18nContext';
 import { ELEZON_DATA } from '../data/catalog';
 
@@ -79,6 +80,7 @@ export function Home() {
   const go = useGo();
   const { t } = useI18n();
   const D = ELEZON_DATA;
+  const stats = useSiteStats();
   return (
     <div className="rise">
       {/* dark hero band */}
@@ -99,7 +101,7 @@ export function Home() {
             <button className="btn btn-accent" onClick={() => go('catalog')}>{t('Найти')}</button>
           </div>
           <div className="row stat-row" style={{ gap: 0, marginTop: 48, flexWrap: 'wrap' }}>
-            {D.stats.map((s, i) => (
+            {stats.map((s, i) => (
               <div key={i} className="col" style={{ gap: 4, padding: '0 36px 0 0', marginRight: 36, borderRight: i < 3 ? '1px solid var(--ink-line)' : 'none' }}>
                 <span className="display" style={{ fontSize: 32, color: 'var(--accent)' }}>{t(s.v)}</span>
                 <span className="mono" style={{ fontSize: 12, color: 'var(--t-on-dark-muted)' }}>{t(s.l)}</span>

@@ -240,6 +240,11 @@ const ADMIN_I18N_EN: Record<string, string> = {
   'Мария Лозова': 'Maria Lozova',
   'Игорь Дёмин': 'Igor Dyomin',
   'Контакты': 'Contacts',
+
+  /* ---- stats editor ---- */
+  'Статистика': 'Statistics',
+  'Блок цифр на главной и «О компании».': 'The numbers block on Home and About.',
+  'Подпись': 'Caption',
 };
 
 export const ADMIN_I18N: Record<string, string> = {

@@ -6,6 +6,7 @@ import {
   AdmIcon, PageHead, Field, TextInput, TextArea, Toggle, useToast,
 } from './shared';
 import type { AdminSection, ContentData, StoreSettings, AccentKey } from './types';
+import type { Stat } from '../types';
 
 interface Props {
   section: 'content' | 'settings';
@@ -32,15 +33,20 @@ const CONTENT_PAGES: Array<{
 ];
 
 function ContentSection({ t }: { t: (s: string) => string }) {
-  const { content, setContent } = useStore();
+  const { content, setContent, stats, setStats } = useStore();
   const toast = useToast();
   const [form, setForm] = useState<ContentData>({ ...content });
+  const [statsForm, setStatsForm] = useState<Stat[]>(() => stats.map((s) => ({ ...s })));
 
   const set = (k: keyof ContentData, v: string) =>
     setForm((p) => ({ ...p, [k]: v }));
 
+  const setStat = (i: number, k: keyof Stat, v: string) =>
+    setStatsForm((p) => p.map((s, idx) => (idx === i ? { ...s, [k]: v } : s)));
+
   const handleSave = () => {
     setContent(form);
+    setStats(statsForm);
     toast(t('Контент сохранён'));
   };
 
@@ -70,6 +76,35 @@ function ContentSection({ t }: { t: (s: string) => string }) {
               {p.rows === 1
                 ? <TextInput value={form[p.key]} onChange={(e) => set(p.key, e.target.value)} placeholder={t(p.label)} />
                 : <TextArea value={form[p.key]} onChange={(e) => set(p.key, e.target.value)} rows={p.rows} placeholder={t(p.label)} />}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="adm-card" style={{ maxWidth: 720, marginTop: 18 }}>
+        <div className="adm-card-head">
+          <span className="adm-card-title">{t('Статистика')}</span>
+          <a href="/" target="_blank" rel="noopener noreferrer"
+            className="adm-mini-btn" title={t('Открыть страницу на сайте')} style={{ textDecoration: 'none' }}>
+            <AdmIcon.ext width={13} height={13} />
+          </a>
+        </div>
+        <div className="adm-card-body col" style={{ gap: 14 }}>
+          <p style={{ fontSize: 13, color: 'var(--t-muted)', margin: 0 }}>
+            {t('Блок цифр на главной и «О компании».')}
+          </p>
+          {statsForm.map((s, i) => (
+            <div key={i} className="row" style={{ gap: 14, alignItems: 'flex-end' }}>
+              <div style={{ width: 170 }}>
+                <Field label={t('Значение')}>
+                  <TextInput value={s.v} onChange={(e) => setStat(i, 'v', e.target.value)} placeholder="1 570+" />
+                </Field>
+              </div>
+              <div style={{ flex: 1 }}>
+                <Field label={t('Подпись')}>
+                  <TextInput value={s.l} onChange={(e) => setStat(i, 'l', e.target.value)} placeholder={t('позиций на складе')} />
+                </Field>
+              </div>
             </div>
           ))}
         </div>
