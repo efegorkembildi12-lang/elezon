@@ -112,6 +112,15 @@ create table if not exists stock_leads (
   created_at   timestamptz not null default now()
 );
 
+-- admin allow-list: a Supabase Auth user is an admin ONLY if listed here.
+-- After creating your admin user (Supabase → Authentication → Add user), grant it:
+--   insert into admins (user_id) values ('<that user's UUID from auth.users>');
+-- Also disable public sign-ups (Auth → Providers → Email → "Allow new users" off).
+create table if not exists admins (
+  user_id    uuid primary key references auth.users(id) on delete cascade,
+  created_at timestamptz not null default now()
+);
+
 -- ---------- RLS ----------
 alter table categories  enable row level security;
 alter table brands      enable row level security;
@@ -135,13 +144,29 @@ create policy "read site_stats" on site_stats for select using (true);
 create policy "insert orders"      on orders      for insert with check (true);
 create policy "insert stock_leads" on stock_leads for insert with check (true);
 
--- admin (any authenticated user) full CRUD
-create policy "admin categories"  on categories  for all to authenticated using (true) with check (true);
-create policy "admin brands"      on brands      for all to authenticated using (true) with check (true);
-create policy "admin products"    on products    for all to authenticated using (true) with check (true);
-create policy "admin customers"   on customers   for all to authenticated using (true) with check (true);
-create policy "admin orders"      on orders      for all to authenticated using (true) with check (true);
-create policy "admin content"     on content     for all to authenticated using (true) with check (true);
-create policy "admin settings"    on settings    for all to authenticated using (true) with check (true);
-create policy "admin site_stats"  on site_stats  for all to authenticated using (true) with check (true);
-create policy "admin stock_leads" on stock_leads for all to authenticated using (true) with check (true);
+-- admin gating: only users in the `admins` allow-list. SECURITY DEFINER lets the
+-- function read `admins` without recursing into its RLS.
+create or replace function public.is_admin()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (select 1 from public.admins where user_id = auth.uid());
+$$;
+
+alter table admins enable row level security;
+-- a signed-in user may see only their own admin row (to self-check membership)
+create policy "read own admin row" on admins for select to authenticated using (user_id = auth.uid());
+
+-- admin (allow-listed authenticated users only) full CRUD — NOT every authenticated user
+create policy "admin categories"  on categories  for all to authenticated using (public.is_admin()) with check (public.is_admin());
+create policy "admin brands"      on brands      for all to authenticated using (public.is_admin()) with check (public.is_admin());
+create policy "admin products"    on products    for all to authenticated using (public.is_admin()) with check (public.is_admin());
+create policy "admin customers"   on customers   for all to authenticated using (public.is_admin()) with check (public.is_admin());
+create policy "admin orders"      on orders      for all to authenticated using (public.is_admin()) with check (public.is_admin());
+create policy "admin content"     on content     for all to authenticated using (public.is_admin()) with check (public.is_admin());
+create policy "admin settings"    on settings    for all to authenticated using (public.is_admin()) with check (public.is_admin());
+create policy "admin site_stats"  on site_stats  for all to authenticated using (public.is_admin()) with check (public.is_admin());
+create policy "admin stock_leads" on stock_leads for all to authenticated using (public.is_admin()) with check (public.is_admin());
