@@ -1,0 +1,75 @@
+/* ELEZON — product card. Ported from shared.jsx. */
+
+import { useState } from 'react';
+import { Icon } from './Icon';
+import { fmt } from '../lib/format';
+import { useGo } from '../lib/useGo';
+import { useI18n } from '../i18n/I18nContext';
+import { useRequestList } from '../store/RequestListContext';
+import type { Product } from '../types';
+
+export function ProductCard({ p }: { p: Product }) {
+  const go = useGo();
+  const { t } = useI18n();
+  const rl = useRequestList();
+  const [hover, setHover] = useState(false);
+  const inList = rl.has(p.id);
+
+  return (
+    <a
+      href="#"
+      onClick={(e) => {
+        e.preventDefault();
+        go('product', p);
+      }}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      className="card col"
+      style={{
+        overflow: 'hidden',
+        transition: 'border-color .15s, box-shadow .15s, transform .15s',
+        borderColor: hover ? 'var(--line-2)' : 'var(--line)',
+        boxShadow: hover ? 'var(--sh-md)' : 'none',
+        transform: hover ? 'translateY(-2px)' : 'none',
+      }}
+    >
+      <div style={{ position: 'relative', aspectRatio: '1 / 1', borderBottom: '1px solid var(--line)', overflow: 'hidden', background: 'var(--surface-2)' }}>
+        <img src={`/images/prod-${p.cat}.png`} alt={t(p.name)} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+        <span className="chip" style={{ position: 'absolute', top: 12, left: 12, background: 'var(--surface)' }}>{p.brand}</span>
+        <span className={'chip ' + (p.stock === 'in' ? 'stock' : 'order')} style={{ position: 'absolute', top: 12, right: 12 }}>
+          <span className="dot" /> {p.stock === 'in' ? t('в наличии') : t('под заказ')}
+        </span>
+      </div>
+      <div className="col" style={{ padding: '16px 17px 18px', gap: 10, flex: 1 }}>
+        <span className="mono" style={{ fontSize: 11, color: 'var(--t-faint)' }}>{t(p.type)} · {p.article}</span>
+        <span style={{ fontWeight: 600, fontSize: 15, color: 'var(--t-strong)', lineHeight: 1.25, flex: 1 }}>{t(p.name)}</span>
+        <div className="row" style={{ justifyContent: 'space-between', marginTop: 4 }}>
+          <span style={{ fontWeight: 700, fontSize: 17, color: 'var(--t-strong)', fontFamily: 'var(--f-mono)' }}>
+            {p.price != null ? (
+              <>{fmt(p.price)} <span style={{ fontSize: 13, color: 'var(--t-muted)' }}>₽</span></>
+            ) : (
+              <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--t-muted)', fontFamily: 'var(--f-sans)' }}>{t('Цена по запросу')}</span>
+            )}
+          </span>
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              rl.toggle(p.id);
+            }}
+            aria-label={inList ? t('В списке') : t('В список запроса')}
+            title={inList ? t('В списке') : t('В список запроса')}
+            style={{
+              width: 34, height: 34, borderRadius: 7, border: 'none',
+              background: inList ? 'var(--accent)' : hover ? 'var(--ink)' : 'var(--surface-2)',
+              color: inList ? 'var(--accent-ink)' : hover ? 'var(--t-on-dark)' : 'var(--t-muted)',
+              display: 'grid', placeItems: 'center', transition: 'background .15s, color .15s',
+            }}
+          >
+            {inList ? <Icon.check width="17" height="17" /> : <Icon.plus width="17" height="17" />}
+          </button>
+        </div>
+      </div>
+    </a>
+  );
+}

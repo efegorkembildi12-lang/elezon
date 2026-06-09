@@ -1,0 +1,199 @@
+/* ============================================================
+   ELEZON — Global styles (storefront).
+   Ported from the prototype styles.css (everything below :root).
+   Design tokens live in tokens.css.
+   ============================================================ */
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  font-family: var(--f-sans);
+  background: var(--bg);
+  color: var(--t-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "ss01";
+}
+
+#root { min-height: 100vh; display: flex; flex-direction: column; }
+
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; }
+img { display: block; max-width: 100%; }
+
+::selection { background: var(--accent); color: var(--accent-ink); }
+
+/* ---------- Layout helpers ---------- */
+.wrap { width: 100%; max-width: var(--wrap); margin: 0 auto; padding: 0 32px; }
+.col { display: flex; flex-direction: column; }
+.row { display: flex; align-items: center; }
+
+/* ---------- Type primitives ---------- */
+.mono {
+  font-family: var(--f-mono);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+.eyebrow {
+  font-family: var(--f-mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--t-muted);
+}
+.eyebrow.on-dark { color: var(--accent); }
+
+.flt-label {
+  font-family: var(--f-mono); font-size: 11px; font-weight: 600;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--t-muted);
+}
+
+h1, h2, h3, h4 { color: var(--t-strong); margin: 0; line-height: 1.04; letter-spacing: -0.02em; }
+
+.display {
+  font-family: var(--f-display);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 0.98;
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-flex; align-items: center; gap: 9px;
+  font-family: var(--f-sans);
+  font-weight: 600; font-size: 15px;
+  padding: 13px 22px;
+  border-radius: var(--r-sm);
+  border: 1px solid transparent;
+  transition: transform .12s ease, background .15s ease, border-color .15s ease, color .15s ease;
+  white-space: nowrap;
+}
+.btn:active { transform: translateY(1px); }
+.btn-accent { background: var(--accent); color: var(--accent-ink); }
+.btn-accent:hover { background: var(--accent-press); }
+.btn-dark { background: var(--ink); color: var(--t-on-dark); }
+.btn-dark:hover { background: var(--ink-2); }
+.btn-ghost { background: transparent; color: var(--t-strong); border-color: var(--line-2); }
+.btn-ghost:hover { border-color: var(--ink); }
+.btn-ghost.on-dark { color: var(--t-on-dark); border-color: var(--ink-line); }
+.btn-ghost.on-dark:hover { border-color: var(--accent); color: var(--accent); }
+.btn-sm { padding: 9px 15px; font-size: 13.5px; }
+.btn-lg { padding: 16px 28px; font-size: 16px; }
+
+/* ---------- Chips / tags ---------- */
+.chip {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-family: var(--f-mono);
+  font-size: 11.5px; font-weight: 500; letter-spacing: 0.04em;
+  padding: 5px 11px; border-radius: var(--r-pill);
+  background: var(--surface-2); color: var(--t-muted);
+  border: 1px solid var(--line);
+}
+.chip.stock { color: oklch(0.52 0.13 150); background: oklch(0.95 0.05 150); border-color: oklch(0.88 0.07 150); }
+.chip.order { color: oklch(0.55 0.10 70); background: oklch(0.96 0.05 75); border-color: oklch(0.9 0.06 75); }
+
+.dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; display: inline-block; }
+
+/* ---------- Cards ---------- */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+}
+
+/* striped image placeholder */
+.ph {
+  position: relative; overflow: hidden;
+  background-color: var(--surface-2);
+  background-image: repeating-linear-gradient(
+    -45deg,
+    oklch(0.91 0.006 256) 0 1px,
+    transparent 1px 11px
+  );
+  display: flex; align-items: center; justify-content: center;
+}
+.ph .ph-label {
+  font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.06em;
+  color: var(--t-faint); text-transform: lowercase;
+  background: var(--surface); padding: 4px 9px; border-radius: var(--r-pill);
+  border: 1px solid var(--line);
+}
+.ph.dark {
+  background-color: var(--ink-2);
+  background-image: repeating-linear-gradient(-45deg, var(--ink-3) 0 1px, transparent 1px 11px);
+}
+.ph.dark .ph-label { background: var(--ink); color: var(--t-on-dark-muted); border-color: var(--ink-line); }
+
+/* ---------- Section scaffolding ---------- */
+.section { padding: 88px 0; }
+.section-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 40px; }
+
+/* ---------- Inputs ---------- */
+.field {
+  width: 100%; font-family: var(--f-sans); font-size: 15px;
+  padding: 13px 16px; border-radius: var(--r-sm);
+  border: 1px solid var(--line-2); background: var(--surface); color: var(--t-strong);
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+.field::placeholder { color: var(--t-faint); }
+.field:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+label.lbl { font-size: 13px; font-weight: 600; color: var(--t-body); display: block; margin-bottom: 7px; }
+
+/* ---------- Utility ---------- */
+.divider { height: 1px; background: var(--line); border: 0; }
+.divider.on-dark { background: var(--ink-line); }
+.grid { display: grid; gap: 1px; }
+.tnum { font-variant-numeric: tabular-nums; }
+
+.link-arrow { display: inline-flex; align-items: center; gap: 7px; font-weight: 600; color: var(--t-strong); }
+.link-arrow svg { transition: transform .15s ease; }
+.link-arrow:hover svg { transform: translateX(4px); }
+.link-arrow.on-dark { color: var(--t-on-dark); }
+
+/* ---------- Marquee / ticker ---------- */
+.brand-track { width: max-content; animation: marquee 38s linear infinite; }
+.ticker-track { width: max-content; animation: marquee 50s linear infinite; }
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) { .brand-track, .ticker-track { animation: none; } }
+
+/* ---------- Responsive ---------- */
+.show-sm { display: none !important; }
+@media (max-width: 1080px) {
+  .prod-grid, .prod-grid-3, .prod-grid-cat, .brand-grid, .trust-grid, .about-grid, .values-grid, .steps-grid, .cat-grid { grid-template-columns: repeat(2, 1fr) !important; }
+  .trust-grid > div, .about-grid > div { border-right: none !important; border-bottom: 1px solid var(--line); }
+  .catalog-layout { grid-template-columns: 1fr !important; }
+  .cat-filters { position: static !important; }
+  .product-top, .product-tab, .company-split, .pay-split, .contacts-grid, .cta-band, .heroC-grid { grid-template-columns: 1fr !important; }
+  .request-layout { grid-template-columns: 1fr !important; }
+  .request-form { position: static !important; }
+  .footer-grid { grid-template-columns: 1fr 1fr !important; }
+  .brand-grid { grid-template-columns: repeat(3,1fr) !important; }
+}
+@media (max-width: 720px) {
+  .wrap { padding: 0 18px; }
+  .hide-sm { display: none !important; }
+  .show-sm { display: flex !important; }
+  .section { padding: 56px 0; }
+  .heroA { font-size: 40px !important; }
+  .heroB { font-size: 48px !important; }
+  .heroC { font-size: 38px !important; }
+  .display { letter-spacing: -0.02em; }
+  .prod-grid, .prod-grid-3, .prod-grid-cat, .cat-grid, .values-grid, .steps-grid, .footer-grid, .brand-grid { grid-template-columns: 1fr !important; }
+  .cat-card { grid-template-columns: 1fr !important; }
+  .cat-card .ph { display: none; }
+  .cat-index-row { grid-template-columns: 48px 1fr 44px !important; gap: 14px !important; }
+  .cat-index-row .hide-sm { display: none !important; }
+  .stat-row > div { border-right: none !important; padding-right: 24px !important; margin-right: 24px !important; }
+  .section-head { flex-direction: column; align-items: flex-start; }
+  .request-row { flex-wrap: wrap; }
+}
+
+/* fade/slide-in on mount — must stay visible even if the animation is paused
+   (preview/capture contexts pause CSS animations; `both` would otherwise pin opacity:0) */
+@keyframes riseIn { from { transform: translateY(12px); } to { transform: none; } }
+.rise { animation: riseIn .55s cubic-bezier(.2,.7,.2,1) both; }
+@media (prefers-reduced-motion: reduce) { .rise { animation: none; } }

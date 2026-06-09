@@ -1,0 +1,54 @@
+/* ============================================================
+   ELEZON — Design tokens
+   Dark graphite + electric accent. Onest / Unbounded / JetBrains Mono.
+   Ported verbatim from the design prototype (styles.css :root).
+   ============================================================ */
+
+:root {
+  /* ---- Ink / dark surfaces ---- */
+  --ink:        oklch(0.17 0.012 256);   /* near-black graphite */
+  --ink-2:      oklch(0.21 0.014 256);   /* raised dark surface */
+  --ink-3:      oklch(0.27 0.014 256);   /* dark card / border-on-dark */
+  --ink-line:   oklch(0.34 0.012 256);
+
+  /* ---- Light surfaces ---- */
+  --bg:         oklch(0.975 0.004 256);  /* cool near-white page */
+  --surface:    oklch(1 0 0);            /* pure white card */
+  --surface-2:  oklch(0.962 0.005 256);  /* subtle gray panel */
+  --line:       oklch(0.91 0.006 256);
+  --line-2:     oklch(0.85 0.008 256);
+
+  /* ---- Text ---- */
+  --t-strong:   oklch(0.20 0.012 256);
+  --t-body:     oklch(0.34 0.010 256);
+  --t-muted:    oklch(0.55 0.010 256);
+  --t-faint:    oklch(0.68 0.008 256);
+  --t-on-dark:  oklch(0.97 0 0);
+  --t-on-dark-muted: oklch(0.74 0.010 256);
+
+  /* ---- Accent (electric). Overridable via --accent-h ---- */
+  --accent-h:   128;
+  --accent:     oklch(0.86 0.19 var(--accent-h));
+  --accent-press: oklch(0.80 0.19 var(--accent-h));
+  --accent-soft: oklch(0.86 0.19 var(--accent-h) / 0.14);
+  --accent-ink: oklch(0.24 0.05 var(--accent-h)); /* text ON accent */
+
+  /* ---- Type ---- */
+  --f-display: "Onest", system-ui, sans-serif;
+  --f-sans:    "Onest", system-ui, -apple-system, sans-serif;
+  --f-mono:    "JetBrains Mono", ui-monospace, monospace;
+
+  /* ---- Radii ---- */
+  --r-xs: 4px;
+  --r-sm: 7px;
+  --r-md: 12px;
+  --r-lg: 18px;
+  --r-pill: 999px;
+
+  /* ---- Shadow ---- */
+  --sh-sm: 0 1px 2px oklch(0.2 0.02 256 / 0.06), 0 1px 3px oklch(0.2 0.02 256 / 0.05);
+  --sh-md: 0 4px 14px oklch(0.2 0.02 256 / 0.08), 0 2px 6px oklch(0.2 0.02 256 / 0.05);
+  --sh-lg: 0 18px 48px oklch(0.2 0.02 256 / 0.14);
+
+  --wrap: 1240px;
+}
