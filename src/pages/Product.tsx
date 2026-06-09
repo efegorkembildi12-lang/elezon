@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Icon } from '../components/Icon';
 import { ProductCard } from '../components/ProductCard';
+import { StockNotifyForm } from '../components/StockNotifyForm';
 import { Breadcrumbs } from '../components/Breadcrumbs';
 import { fmt } from '../lib/format';
 import { useGo } from '../lib/useGo';
@@ -125,6 +126,11 @@ export function Product() {
               </button>
               <a href="tel:+74951474761" className="btn btn-dark"><Icon.phone width="17" height="17" /></a>
             </div>
+            {p.stock === 'order' && (
+              <div style={{ borderTop: '1px solid var(--line)', paddingTop: 16 }}>
+                <StockNotifyForm product={p} />
+              </div>
+            )}
             <div className="row" style={{ gap: 18, fontSize: 12.5, color: 'var(--t-muted)', flexWrap: 'wrap' }}>
               <span className="row" style={{ gap: 7 }}><Icon.truck width="15" height="15" style={{ color: 'var(--accent-press)' }} /> {t('Отгрузка 24 ч')}</span>
               <span className="row" style={{ gap: 7 }}><Icon.shield width="15" height="15" style={{ color: 'var(--accent-press)' }} /> {t('Гарантия производителя')}</span>

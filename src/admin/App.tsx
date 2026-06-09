@@ -9,6 +9,7 @@ import Products from './Products';
 import Catalog from './Catalog';
 import Requests from './Requests';
 import Customers from './Customers';
+import StockLeads from './StockLeads';
 import Content from './Content';
 import type { AdminSection } from './types';
 
@@ -70,6 +71,7 @@ function AdminShell() {
           {route === 'brands'     && <Catalog    section="brands"     go={go} t={t} />}
           {route === 'requests'   && <Requests   go={go} lang={lang} t={t} openId={arg} />}
           {route === 'customers'  && <Customers  go={go} lang={lang} t={t} />}
+          {route === 'leads'      && <StockLeads go={go} lang={lang} t={t} />}
           {route === 'content'    && <Content    section="content"    go={go} t={t} />}
           {route === 'settings'   && <Content    section="settings"   go={go} t={t} />}
         </div>

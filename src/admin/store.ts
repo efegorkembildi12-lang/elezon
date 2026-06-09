@@ -4,6 +4,7 @@
 import { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import { ELEZON_DATA } from '../data/catalog';
 import { SITE_STATS_KEY, defaultStats, readStats, type SiteStat } from '../data/siteStats';
+import { STOCK_NOTIFY_KEY, defaultLeads, readLeads, type StockLead } from '../data/stockNotifications';
 import type {
   AdminProduct,
   AdminCategory,
@@ -210,6 +211,7 @@ export interface AdminStore {
   content: ContentData;
   settings: StoreSettings;
   stats: SiteStat[];
+  leads: StockLead[];
 
   addProduct: (p: Omit<AdminProduct, 'id'>) => void;
   updateProduct: (id: string, patch: Partial<AdminProduct>) => void;
@@ -233,6 +235,7 @@ export interface AdminStore {
   setContent: (patch: Partial<ContentData>) => void;
   setSettings: (patch: Partial<StoreSettings>) => void;
   setStats: (stats: SiteStat[]) => void;
+  setLeads: (leads: StockLead[]) => void;
 
   resetAll: () => void;
 }
@@ -249,6 +252,7 @@ export function useAdminStore(): AdminStore {
   const [content, setContentState]   = useState<ContentData>(() => loadSlice('content', seedContent));
   const [settings, setSettingsState] = useState<StoreSettings>(() => loadSlice('settings', seedSettings));
   const [stats, setStatsState]       = useState<SiteStat[]>(() => readStats());
+  const [leads, setLeadsState]       = useState<StockLead[]>(() => readLeads());
 
   useEffect(() => { saveSlice('products',   products);   }, [products]);
   useEffect(() => { saveSlice('categories', categories); }, [categories]);
@@ -258,11 +262,23 @@ export function useAdminStore(): AdminStore {
   useEffect(() => { saveSlice('content',    content);    }, [content]);
   useEffect(() => { saveSlice('settings',   settings);   }, [settings]);
   useEffect(() => { try { localStorage.setItem(SITE_STATS_KEY, JSON.stringify(stats)); } catch { /* ignore */ } }, [stats]);
+  useEffect(() => { try { localStorage.setItem(STOCK_NOTIFY_KEY, JSON.stringify(leads)); } catch { /* ignore */ } }, [leads]);
+
+  /* Live-sync the storefront-written slices (orders submitted from the request
+     list, stock-notification leads) when they change in another tab. */
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === KEY('orders') || e.key === null) setOrders(loadSlice('orders', seedOrders));
+      if (e.key === STOCK_NOTIFY_KEY || e.key === null) setLeadsState(readLeads());
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
 
   const uid = useCallback((p: string) => p + '-' + Math.random().toString(36).slice(2, 8), []);
 
   return useMemo<AdminStore>(() => ({
-    products, categories, brands, orders, customers, content, settings, stats,
+    products, categories, brands, orders, customers, content, settings, stats, leads,
 
     addProduct:    (p) => setProducts((prev) => [{ ...p, id: uid('prod') }, ...prev]),
     updateProduct: (id, patch) => setProducts((prev) => prev.map((p) => p.id === id ? { ...p, ...patch } : p)),
@@ -286,12 +302,14 @@ export function useAdminStore(): AdminStore {
     setContent:  (patch) => setContentState((prev) => ({ ...prev, ...patch })),
     setSettings: (patch) => setSettingsState((prev) => ({ ...prev, ...patch })),
     setStats:    (next) => setStatsState(next),
+    setLeads:    (next) => setLeadsState(next),
 
     resetAll: () => {
       ['products','categories','brands','orders','customers','content','settings'].forEach((k) => {
         try { localStorage.removeItem(KEY(k)); } catch { /* ignore */ }
       });
       try { localStorage.removeItem(SITE_STATS_KEY); } catch { /* ignore */ }
+      try { localStorage.removeItem(STOCK_NOTIFY_KEY); } catch { /* ignore */ }
       setProducts(seedProducts());
       setCategories(seedCategories());
       setBrands(seedBrands());
@@ -300,8 +318,9 @@ export function useAdminStore(): AdminStore {
       setContentState(seedContent());
       setSettingsState(seedSettings());
       setStatsState(defaultStats());
+      setLeadsState(defaultLeads());
     },
-  }), [products, categories, brands, orders, customers, content, settings, stats, uid]);
+  }), [products, categories, brands, orders, customers, content, settings, stats, leads, uid]);
 }
 
 export function useStore(): AdminStore {

@@ -3,6 +3,7 @@
 import { Icon, catIcon } from '../components/Icon';
 import { ProductCard } from '../components/ProductCard';
 import { QuoteCTA } from '../components/QuoteCTA';
+import { SearchBox } from '../components/SearchBox';
 import { useGo } from '../lib/useGo';
 import { useSiteStats } from '../lib/useSiteStats';
 import { useI18n } from '../i18n/I18nContext';
@@ -95,10 +96,8 @@ export function Home() {
             {t('КИП, низковольтное оборудование и KNX оригинальных брендов. Склад в Москве, отгрузка за 24 часа.')}
           </p>
           {/* search */}
-          <div className="hero-search row" style={{ marginTop: 34, maxWidth: 680, background: 'var(--surface)', borderRadius: 'var(--r-md)', padding: 7, gap: 7, boxShadow: 'var(--sh-lg)' }}>
-            <span className="row" style={{ paddingLeft: 12, color: 'var(--t-faint)' }}><Icon.search width="20" height="20" /></span>
-            <input className="field" placeholder={t('Артикул, модель или наименование…')} style={{ border: 'none', boxShadow: 'none', flex: 1 }} onKeyDown={(e) => e.key === 'Enter' && go('catalog')} />
-            <button className="btn btn-accent" onClick={() => go('catalog')}>{t('Найти')}</button>
+          <div style={{ marginTop: 34, maxWidth: 680 }}>
+            <SearchBox variant="hero" />
           </div>
           <div className="row stat-row" style={{ gap: 0, marginTop: 48, flexWrap: 'wrap' }}>
             {stats.map((s, i) => (

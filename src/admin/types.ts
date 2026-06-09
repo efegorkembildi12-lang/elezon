@@ -101,6 +101,7 @@ export type AdminSection =
   | 'brands'
   | 'requests'
   | 'customers'
+  | 'leads'
   | 'content'
   | 'settings';
 

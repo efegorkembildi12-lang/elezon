@@ -1,12 +1,13 @@
 /* ELEZON — Catalog & Category listing with horizontal filter bar. Ported from catalog.jsx. */
 
 import { useEffect, useState, type CSSProperties } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { Icon } from '../components/Icon';
 import { ProductCard } from '../components/ProductCard';
 import { Breadcrumbs, type Crumb } from '../components/Breadcrumbs';
 import { fmt } from '../lib/format';
 import { useGo } from '../lib/useGo';
+import { matchProduct } from '../lib/search';
 import { useI18n } from '../i18n/I18nContext';
 import { ELEZON_DATA } from '../data/catalog';
 
@@ -34,6 +35,14 @@ export function Catalog() {
   const { categoryId } = useParams<{ categoryId?: string }>();
   const category = categoryId ? D.categories.find((c) => c.id === categoryId) ?? null : null;
 
+  const [params, setParams] = useSearchParams();
+  const q = params.get('q') ?? '';
+  const clearQ = () => {
+    const next = new URLSearchParams(params);
+    next.delete('q');
+    setParams(next, { replace: true });
+  };
+
   const [cats, setCats] = useState<string[]>(category ? [category.id] : []);
   const [brands, setBrands] = useState<string[]>([]);
   const [stockOnly, setStockOnly] = useState(false);
@@ -55,10 +64,13 @@ export function Catalog() {
     (p) =>
       (cats.length === 0 || cats.includes(p.cat)) &&
       (brands.length === 0 || brands.includes(p.brand)) &&
-      (!stockOnly || p.stock === 'in'),
+      (!stockOnly || p.stock === 'in') &&
+      matchProduct(p, q, t),
   );
   if (sort === 'price-asc') items = [...items].sort((a, b) => (a.price ?? 9e9) - (b.price ?? 9e9));
   if (sort === 'price-desc') items = [...items].sort((a, b) => (b.price ?? -1) - (a.price ?? -1));
+  if (sort === 'name-asc') items = [...items].sort((a, b) => t(a.name).localeCompare(t(b.name), 'ru'));
+  if (sort === 'name-desc') items = [...items].sort((a, b) => t(b.name).localeCompare(t(a.name), 'ru'));
 
   const activeBrands = [...new Set(D.products.filter((p) => cats.length === 0 || cats.includes(p.cat)).map((p) => p.brand))];
   const title = category ? category.name : 'Каталог';
@@ -68,7 +80,7 @@ export function Catalog() {
   ];
   if (category) crumbs.push({ label: category.name });
 
-  const hasFilters = cats.length > 0 || brands.length > 0 || stockOnly;
+  const hasFilters = cats.length > 0 || brands.length > 0 || stockOnly || q.length > 0;
 
   return (
     <div className="rise">
@@ -111,7 +123,7 @@ export function Catalog() {
               <div className="row" style={{ gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
                 <FilterChip label={t('Только в наличии')} active={stockOnly} onClick={() => setStockOnly(!stockOnly)} dot />
                 {hasFilters ? (
-                  <button onClick={() => { setCats(category ? [category.id] : []); setBrands([]); setStockOnly(false); }} className="row" style={{ gap: 6, background: 'none', border: 'none', color: 'var(--accent-press)', fontSize: 13, fontWeight: 600, padding: '8px 6px', cursor: 'pointer' }}><Icon.minus width="14" height="14" /> {t('Сбросить')}</button>
+                  <button onClick={() => { setCats(category ? [category.id] : []); setBrands([]); setStockOnly(false); clearQ(); }} className="row" style={{ gap: 6, background: 'none', border: 'none', color: 'var(--accent-press)', fontSize: 13, fontWeight: 600, padding: '8px 6px', cursor: 'pointer' }}><Icon.minus width="14" height="14" /> {t('Сбросить')}</button>
                 ) : null}
               </div>
             </div>
@@ -121,12 +133,22 @@ export function Catalog() {
         {/* results */}
         <div className="col" style={{ gap: 20 }}>
           <div className="row" style={{ justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
-            <span className="mono" style={{ fontSize: 13, color: 'var(--t-muted)' }}>{t('Найдено')} <span style={{ color: 'var(--t-strong)', fontWeight: 700 }}>{items.length}</span> {t('позиций')}</span>
+            <div className="row" style={{ gap: 12, flexWrap: 'wrap' }}>
+              <span className="mono" style={{ fontSize: 13, color: 'var(--t-muted)' }}>{t('Найдено')} <span style={{ color: 'var(--t-strong)', fontWeight: 700 }}>{items.length}</span> {t('позиций')}</span>
+              {q && (
+                <button onClick={clearQ} className="row" style={{ gap: 8, padding: '5px 10px 5px 12px', borderRadius: 'var(--r-pill)', border: '1px solid var(--accent-press)', background: 'var(--accent-soft)', color: 'var(--accent-press)', fontSize: 12.5, fontWeight: 600, cursor: 'pointer' }}>
+                  {t('Результаты по запросу')} «{q}»
+                  <span style={{ fontSize: 16, lineHeight: 1 }}>×</span>
+                </button>
+              )}
+            </div>
             <div className="row" style={{ gap: 10 }}>
               <select className="field" value={sort} onChange={(e) => setSort(e.target.value)} style={{ width: 'auto', padding: '9px 14px', fontSize: 13.5 }}>
                 <option value="pop">{t('По популярности')}</option>
                 <option value="price-asc">{t('Сначала дешевле')}</option>
                 <option value="price-desc">{t('Сначала дороже')}</option>
+                <option value="name-asc">{t('По названию (А–Я)')}</option>
+                <option value="name-desc">{t('По названию (Я–А)')}</option>
               </select>
               <div className="row" style={{ border: '1px solid var(--line-2)', borderRadius: 'var(--r-sm)', overflow: 'hidden' }}>
                 {(['grid', 'list'] as const).map((v) => (

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Icon } from './Icon';
+import { StockNotifyForm } from './StockNotifyForm';
 import { fmt } from '../lib/format';
 import { useGo } from '../lib/useGo';
 import { useI18n } from '../i18n/I18nContext';
@@ -13,6 +14,7 @@ export function ProductCard({ p }: { p: Product }) {
   const { t } = useI18n();
   const rl = useRequestList();
   const [hover, setHover] = useState(false);
+  const [notify, setNotify] = useState(false);
   const inList = rl.has(p.id);
 
   return (
@@ -26,6 +28,7 @@ export function ProductCard({ p }: { p: Product }) {
       onMouseLeave={() => setHover(false)}
       className="card col"
       style={{
+        position: 'relative',
         overflow: 'hidden',
         transition: 'border-color .15s, box-shadow .15s, transform .15s',
         borderColor: hover ? 'var(--line-2)' : 'var(--line)',
@@ -51,25 +54,55 @@ export function ProductCard({ p }: { p: Product }) {
               <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--t-muted)', fontFamily: 'var(--f-sans)' }}>{t('Цена по запросу')}</span>
             )}
           </span>
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              rl.toggle(p.id);
-            }}
-            aria-label={inList ? t('В списке') : t('В список запроса')}
-            title={inList ? t('В списке') : t('В список запроса')}
-            style={{
-              width: 34, height: 34, borderRadius: 7, border: 'none',
-              background: inList ? 'var(--accent)' : hover ? 'var(--ink)' : 'var(--surface-2)',
-              color: inList ? 'var(--accent-ink)' : hover ? 'var(--t-on-dark)' : 'var(--t-muted)',
-              display: 'grid', placeItems: 'center', transition: 'background .15s, color .15s',
-            }}
-          >
-            {inList ? <Icon.check width="17" height="17" /> : <Icon.plus width="17" height="17" />}
-          </button>
+          <div className="row" style={{ gap: 8 }}>
+            {p.stock === 'order' && (
+              <button
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); setNotify((v) => !v); }}
+                aria-label={t('Уведомить о поступлении')}
+                title={t('Уведомить о поступлении')}
+                style={{
+                  width: 34, height: 34, borderRadius: 7, border: '1px solid var(--line-2)',
+                  background: notify ? 'var(--accent-soft)' : 'var(--surface)',
+                  color: notify ? 'var(--accent-press)' : 'var(--t-muted)',
+                  display: 'grid', placeItems: 'center', transition: 'background .15s, color .15s',
+                }}
+              >
+                <Icon.bell width="17" height="17" />
+              </button>
+            )}
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                rl.toggle(p.id);
+              }}
+              aria-label={inList ? t('В списке') : t('В список запроса')}
+              title={inList ? t('В списке') : t('В список запроса')}
+              style={{
+                width: 34, height: 34, borderRadius: 7, border: 'none',
+                background: inList ? 'var(--accent)' : hover ? 'var(--ink)' : 'var(--surface-2)',
+                color: inList ? 'var(--accent-ink)' : hover ? 'var(--t-on-dark)' : 'var(--t-muted)',
+                display: 'grid', placeItems: 'center', transition: 'background .15s, color .15s',
+              }}
+            >
+              {inList ? <Icon.check width="17" height="17" /> : <Icon.plus width="17" height="17" />}
+            </button>
+          </div>
         </div>
       </div>
+
+      {notify && (
+        <div
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+          style={{
+            position: 'absolute', left: 0, right: 0, bottom: 0, zIndex: 4,
+            background: 'var(--surface)', borderTop: '1px solid var(--line)',
+            padding: '14px 16px', boxShadow: 'var(--sh-lg)',
+          }}
+        >
+          <StockNotifyForm product={p} compact />
+        </div>
+      )}
     </a>
   );
 }

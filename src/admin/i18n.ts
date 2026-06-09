@@ -245,6 +245,13 @@ const ADMIN_I18N_EN: Record<string, string> = {
   'Статистика': 'Statistics',
   'Блок цифр на главной и «О компании». Заполните оба языка — на сайте показывается версия активного языка.': 'The numbers block on Home and About. Fill in both languages — the site shows the version for the active language.',
   'Подпись': 'Caption',
+
+  /* ---- stock notifications ---- */
+  'Подписки': 'Stock notifications',
+  'Заявки на уведомление о поступлении товаров «под заказ».': 'Requests to be notified when "on order" products are back in stock.',
+  'Здесь появятся клиенты, подписавшиеся на поступление товаров.': 'Customers who subscribed for restock alerts will appear here.',
+  'Дата подписки': 'Subscription date',
+  'Товар': 'Product',
 };
 
 export const ADMIN_I18N: Record<string, string> = {

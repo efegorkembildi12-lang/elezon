@@ -5,6 +5,7 @@ import { useState, type CSSProperties } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Icon } from './Icon';
 import { Logo } from './Logo';
+import { SearchBox } from './SearchBox';
 import { useGo } from '../lib/useGo';
 import { useI18n } from '../i18n/I18nContext';
 import { useRequestList } from '../store/RequestListContext';
@@ -60,6 +61,7 @@ export function Header() {
   const dark = pathname === '/';
   const route = activeKey(pathname);
   const [open, setOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   return (
     <header
@@ -110,7 +112,7 @@ export function Header() {
           </nav>
         </div>
         <div className="row" style={{ gap: 8 }}>
-          <button className="row hide-sm" onClick={() => go('catalog')} aria-label="Поиск" style={iconBtn(dark)}><Icon.search width="19" height="19" /></button>
+          <button className="row hide-sm" onClick={() => setSearchOpen((v) => !v)} aria-label={t('Найти')} aria-expanded={searchOpen} style={iconBtn(dark)}><Icon.search width="19" height="19" /></button>
           <button className="row hide-sm" aria-label="Избранное" style={iconBtn(dark)}><Icon.heart width="19" height="19" /></button>
           <button className="row hide-sm" onClick={() => go('request')} aria-label={t('Список запроса')} style={{ ...iconBtn(dark), position: 'relative' }}>
             <Icon.list width="19" height="19" />
@@ -121,9 +123,15 @@ export function Header() {
           <a href="tel:+74951474761" className="btn btn-accent btn-sm row hide-sm" style={{ marginLeft: 6 }}>
             <Icon.phone width="16" height="16" /> +7 (495) 147-47-61
           </a>
+          <button className="row show-sm" onClick={() => setSearchOpen((v) => !v)} aria-label={t('Найти')} style={iconBtn(dark)}><Icon.search width="20" height="20" /></button>
           <button className="row show-sm" onClick={() => setOpen(!open)} style={iconBtn(dark)}><Icon.menu width="22" height="22" /></button>
         </div>
       </div>
+      {searchOpen && (
+        <div className="wrap" style={{ paddingBottom: 16, paddingTop: 2 }}>
+          <SearchBox variant="header" autoFocus onClose={() => setSearchOpen(false)} />
+        </div>
+      )}
       {open && (
         <div className="wrap col show-sm" style={{ paddingBottom: 16, gap: 4 }}>
           {NAV.map((it) => (

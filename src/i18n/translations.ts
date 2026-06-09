@@ -265,4 +265,27 @@ export const I18N_EN: Record<string, string> = {
   'В списке': 'In list',
   'В список': 'Add',
   'В список запроса': 'Add to request list',
+
+  /* ---- search + sort ---- */
+  'Артикул': 'Article',
+  'Наименование': 'Name',
+  'Кол-во': 'Qty',
+  'Цена, ₽': 'Price, ₽',
+  'Товары': 'Products',
+  'Категории': 'Categories',
+  'Ничего не нашлось по запросу': 'Nothing found for your query',
+  'Результаты по запросу': 'Results for',
+  'По названию (А–Я)': 'Name (A–Z)',
+  'По названию (Я–А)': 'Name (Z–A)',
+
+  /* ---- request list export ---- */
+  'Скачать CSV': 'Download CSV',
+  'Печать': 'Print',
+  'Спецификация': 'Specification',
+
+  /* ---- stock notify ---- */
+  'Уведомить': 'Notify me',
+  'Уведомить о поступлении': 'Notify when in stock',
+  'Сообщим, когда товар появится': "We'll email you when it's back in stock",
+  'Введите корректный e-mail': 'Enter a valid email',
 };

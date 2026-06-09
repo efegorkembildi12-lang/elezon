@@ -340,6 +340,7 @@ export const ADM_NAV: NavItem[] = [
   { id: 'brands',     label: 'Бренды',    icon: AdmIcon.tag },
   { id: 'requests',   label: 'Заявки',    icon: AdmIcon.inbox },
   { id: 'customers',  label: 'Клиенты',   icon: AdmIcon.users },
+  { id: 'leads',      label: 'Подписки',  icon: AdmIcon.bell },
   { id: 'content',    label: 'Контент',   icon: AdmIcon.file },
 ];
 
