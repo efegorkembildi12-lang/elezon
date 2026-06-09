@@ -1,6 +1,7 @@
 /* ELEZON — Request list (Список запроса): batch quote for multiple products.
-   Ported from request.jsx. Submitting persists a real заявка into the admin panel;
-   the list can also be exported as a CSV spec or printed (browser → Save as PDF). */
+   Ported from request.jsx. Submitting inserts a real заявка into Supabase (admin
+   sees it live via Realtime); the list can also be exported as a CSV spec or
+   printed (browser → Save as PDF). */
 
 import { useState } from 'react';
 import { Icon } from '../components/Icon';
@@ -50,6 +51,8 @@ export function RequestList() {
   const rl = useRequestList();
   const { products } = useCatalog();
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState(false);
   const [form, setForm] = useState<ContactForm>(BLANK_FORM);
   const set = <K extends keyof ContactForm>(k: K, v: string) => setForm((p) => ({ ...p, [k]: v }));
 
@@ -60,14 +63,22 @@ export function RequestList() {
 
   const valid = form.org.trim() !== '' && form.name.trim() !== '' && form.phone.trim() !== '';
 
-  const handleSubmit = () => {
-    if (!valid) return;
-    submitStorefrontRequest(
-      form,
-      rows.map((r) => ({ id: r.id, qty: r.qty, price: r.p.price })),
-      new Date().toISOString(),
-    );
-    setSent(true);
+  const handleSubmit = async () => {
+    if (!valid || sending) return;
+    setSending(true);
+    setError(false);
+    try {
+      await submitStorefrontRequest(
+        form,
+        rows.map((r) => ({ id: r.id, qty: r.qty, price: r.p.price })),
+        new Date().toISOString(),
+      );
+      setSent(true);
+    } catch {
+      setError(true);
+    } finally {
+      setSending(false);
+    }
   };
 
   const handleCsv = () =>
@@ -157,7 +168,8 @@ export function RequestList() {
                 </div>
                 <div><label className="lbl">E-mail</label><input className="field" value={form.email} onChange={(e) => set('email', e.target.value)} placeholder="info@company.ru" /></div>
                 <div><label className="lbl">{t('Комментарий')}</label><textarea className="field" rows={2} value={form.comment} onChange={(e) => set('comment', e.target.value)} placeholder={t('Сроки, требования, адрес доставки…')} style={{ resize: 'vertical' }} /></div>
-                <button className="btn btn-accent" style={{ justifyContent: 'center', opacity: valid ? 1 : 0.55 }} disabled={!valid} onClick={handleSubmit}>{t('Отправить запрос')} ({rows.length}) <Icon.arrow width="17" height="17" /></button>
+                {error && <span style={{ fontSize: 12.5, color: 'oklch(0.55 0.18 25)' }}>{t('Не удалось отправить, попробуйте позже')}</span>}
+                <button className="btn btn-accent" style={{ justifyContent: 'center', opacity: valid && !sending ? 1 : 0.55 }} disabled={!valid || sending} onClick={handleSubmit}>{sending ? t('Отправка…') : <>{t('Отправить запрос')} ({rows.length})</>} <Icon.arrow width="17" height="17" /></button>
                 <span className="mono" style={{ fontSize: 11, color: 'var(--t-faint)', textAlign: 'center' }}>{t('Нажимая кнопку, вы соглашаетесь с политикой конфиденциальности')}</span>
               </div>
             )}

@@ -1,5 +1,6 @@
 /* ELEZON — "notify when back in stock" email capture for "под заказ" products.
-   Inline on the product page; compact popover variant on the catalog card. */
+   Inline on the product page; compact popover variant on the catalog card.
+   Submits to Supabase (stock_leads) via addLead. */
 
 import { useState } from 'react';
 import { Icon } from './Icon';
@@ -13,12 +14,22 @@ export function StockNotifyForm({ product, compact }: { product: Product; compac
   const { t } = useI18n();
   const [email, setEmail] = useState('');
   const [done, setDone] = useState(false);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
 
-  const submit = () => {
-    if (!EMAIL_RE.test(email.trim())) { setError(true); return; }
-    addLead(product, email, new Date().toISOString());
-    setDone(true);
+  const submit = async () => {
+    if (busy) return;
+    if (!EMAIL_RE.test(email.trim())) { setError(t('Введите корректный e-mail')); return; }
+    setBusy(true);
+    setError(null);
+    try {
+      await addLead(product, email);
+      setDone(true);
+    } catch {
+      setError(t('Не удалось отправить, попробуйте позже'));
+    } finally {
+      setBusy(false);
+    }
   };
 
   if (done) {
@@ -42,15 +53,15 @@ export function StockNotifyForm({ product, compact }: { product: Product; compac
           type="email"
           value={email}
           placeholder="info@company.ru"
-          onChange={(e) => { setEmail(e.target.value); setError(false); }}
+          onChange={(e) => { setEmail(e.target.value); setError(null); }}
           onKeyDown={(e) => e.key === 'Enter' && submit()}
           style={{ flex: 1, padding: compact ? '10px 12px' : undefined }}
         />
-        <button className="btn btn-dark" style={{ whiteSpace: 'nowrap' }} onClick={submit}>
-          <Icon.bell width="16" height="16" /> {t('Уведомить')}
+        <button className="btn btn-dark" style={{ whiteSpace: 'nowrap', opacity: busy ? 0.6 : 1 }} disabled={busy} onClick={submit}>
+          <Icon.bell width="16" height="16" /> {busy ? '…' : t('Уведомить')}
         </button>
       </div>
-      {error && <span style={{ fontSize: 12, color: 'oklch(0.55 0.18 25)' }}>{t('Введите корректный e-mail')}</span>}
+      {error && <span style={{ fontSize: 12, color: 'oklch(0.55 0.18 25)' }}>{error}</span>}
     </div>
   );
 }

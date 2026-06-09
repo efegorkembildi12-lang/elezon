@@ -1,9 +1,12 @@
-/* ELEZON — Admin App shell + state router */
+/* ELEZON — Admin App shell + auth gate + state router */
 
 import { useState, useEffect } from 'react';
 import { AdminStoreContext, useAdminStore, useStore } from './store';
 import { makeAdminT } from './i18n';
-import { TopBar, ToastHost, ADM_NAV } from './shared';
+import { TopBar, ToastHost, ADM_NAV, AdmIcon } from './shared';
+import { supabase } from '../lib/supabase';
+import { isCurrentUserAdmin } from '../lib/db/repo';
+import Login from './Login';
 import Dashboard from './Dashboard';
 import Products from './Products';
 import Catalog from './Catalog';
@@ -55,14 +58,7 @@ function AdminShell() {
 
   return (
     <div className="adm-layout">
-      <TopBar
-        route={route}
-        go={go}
-        lang={lang}
-        setLang={setLang}
-        store={store}
-        t={t}
-      />
+      <TopBar route={route} go={go} lang={lang} setLang={setLang} store={store} t={t} />
       <main className="adm-main">
         <div className="adm-main-inner">
           {route === 'dashboard'  && <Dashboard  go={go} lang={lang} t={t} />}
@@ -81,12 +77,7 @@ function AdminShell() {
           const Icon = item.icon;
           const active = route === item.id;
           return (
-            <button
-              key={item.id}
-              className={'adm-bottom-nav-item' + (active ? ' active' : '')}
-              onClick={() => go(item.id)}
-              aria-current={active ? 'page' : undefined}
-            >
+            <button key={item.id} className={'adm-bottom-nav-item' + (active ? ' active' : '')} onClick={() => go(item.id)} aria-current={active ? 'page' : undefined}>
               <Icon width={22} height={22} />
               <span>{t(item.label)}</span>
             </button>
@@ -97,11 +88,10 @@ function AdminShell() {
   );
 }
 
-/* ---- root: provide store context + toast host ---- */
+/* ---- authed root: provides store context + toast host ---- */
 
-export default function AdminApp() {
+function AuthedRoot() {
   const store = useAdminStore();
-
   return (
     <AdminStoreContext.Provider value={store}>
       <ToastHost>
@@ -109,4 +99,43 @@ export default function AdminApp() {
       </ToastHost>
     </AdminStoreContext.Provider>
   );
+}
+
+function Splash() {
+  return (
+    <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', background: 'var(--bg)' }}>
+      <span className="adm-brand-badge" style={{ display: 'grid', placeItems: 'center', width: 44, height: 44, borderRadius: 11, background: 'var(--accent)', color: 'var(--accent-ink)' }}>
+        <AdmIcon.bolt width={24} height={24} />
+      </span>
+    </div>
+  );
+}
+
+/* ---- root: auth gate ---- */
+
+type Phase = 'loading' | 'login' | 'authed';
+
+export default function AdminApp() {
+  const [phase, setPhase] = useState<Phase>('loading');
+
+  useEffect(() => {
+    if (!supabase) { setPhase('login'); return; }
+    let active = true;
+    supabase.auth.getSession().then(async ({ data }) => {
+      if (!active) return;
+      if (!data.session) { setPhase('login'); return; }
+      const ok = await isCurrentUserAdmin();
+      if (!active) return;
+      if (ok) { setPhase('authed'); }
+      else { await supabase!.auth.signOut(); setPhase('login'); }
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session) setPhase('login');
+    });
+    return () => { active = false; sub.subscription.unsubscribe(); };
+  }, []);
+
+  if (phase === 'loading') return <Splash />;
+  if (phase === 'login') return <Login onAuthed={() => setPhase('authed')} />;
+  return <AuthedRoot />;
 }

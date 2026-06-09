@@ -288,4 +288,6 @@ export const I18N_EN: Record<string, string> = {
   'Уведомить о поступлении': 'Notify when in stock',
   'Сообщим, когда товар появится': "We'll email you when it's back in stock",
   'Введите корректный e-mail': 'Enter a valid email',
+  'Отправка…': 'Sending…',
+  'Не удалось отправить, попробуйте позже': "Couldn't send, please try again later",
 };

@@ -16,7 +16,7 @@ interface Props {
 }
 
 export default function StockLeads({ go: _go, lang, t }: Props) {
-  const { leads, setLeads } = useStore();
+  const { leads, deleteLead } = useStore();
   const toast = useToast();
 
   const [q, setQ] = useState('');
@@ -33,7 +33,7 @@ export default function StockLeads({ go: _go, lang, t }: Props) {
   const sorted = sortRows(filtered, sort, {}) as StockLead[];
 
   const handleDelete = (id: string) => {
-    setLeads(leads.filter((l) => l.id !== id));
+    deleteLead(id);
     toast(t('Запись удалена'));
     setConfirmId(null);
   };

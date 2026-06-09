@@ -6,6 +6,7 @@ import {
 } from 'react';
 import type { AdminStore } from './store';
 import type { AdminSection, OrderStatus, SortState } from './types';
+import { supabase } from '../lib/supabase';
 
 /* ---- helpers ---- */
 export function afmt(n: number | null | undefined): string | null {
@@ -439,7 +440,7 @@ export function TopBar({ route, go, lang, setLang, store, t }: TopBarProps) {
                 <a className="adm-pop-item" href="/">
                   <AdmIcon.ext width={17} height={17} />{t('Открыть сайт')}
                 </a>
-                <button className="adm-pop-item danger">
+                <button className="adm-pop-item danger" onClick={() => { supabase?.auth.signOut(); }}>
                   <AdmIcon.logout width={17} height={17} />{t('Выйти')}
                 </button>
               </div>
