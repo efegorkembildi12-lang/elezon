@@ -4,6 +4,7 @@ import {
   createContext, useContext, useState, useEffect, useCallback,
   type ReactNode, type CSSProperties,
 } from 'react';
+import { createPortal } from 'react-dom';
 import type { AdminStore } from './store';
 import type { AdminSection, OrderStatus, SortState } from './types';
 import { supabase } from '../lib/supabase';
@@ -155,7 +156,7 @@ export function Drawer({ title, eyebrow, onClose, footer, children, width }: Dra
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [onClose]);
-  return (
+  return createPortal(
     <>
       <div className="adm-overlay" onClick={onClose} />
       <div className="adm-drawer" style={width ? { width } : undefined} role="dialog" aria-modal="true">
@@ -171,7 +172,8 @@ export function Drawer({ title, eyebrow, onClose, footer, children, width }: Dra
         <div className="adm-drawer-body">{children}</div>
         {footer && <div className="adm-drawer-foot">{footer}</div>}
       </div>
-    </>
+    </>,
+    document.body,
   );
 }
 
@@ -186,7 +188,7 @@ interface ConfirmModalProps {
 }
 
 export function ConfirmModal({ title, body, confirmLabel, onConfirm, onClose, t }: ConfirmModalProps) {
-  return (
+  return createPortal(
     <>
       <div className="adm-overlay" onClick={onClose} />
       <div className="adm-modal" role="dialog" aria-modal="true">
@@ -204,7 +206,8 @@ export function ConfirmModal({ title, body, confirmLabel, onConfirm, onClose, t 
           </div>
         </div>
       </div>
-    </>
+    </>,
+    document.body,
   );
 }
 
