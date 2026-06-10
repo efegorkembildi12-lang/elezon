@@ -384,7 +384,7 @@ export function TopBar({ route, go, lang, setLang, store, t }: TopBarProps) {
             const I = it.icon;
             const isReq = it.id === 'requests';
             return (
-              <button key={it.id} className={'adm-nav-item' + (route === it.id ? ' active' : '')} onClick={() => go(it.id)}>
+              <button key={it.id} className={'adm-nav-item' + (route === it.id ? ' active' : '')} onClick={() => go(it.id)} title={t(it.label)}>
                 <I width={17} height={17} />
                 <span className="adm-nav-label">{t(it.label)}</span>
                 {isReq && newCount > 0 && <span className="adm-nav-count">{newCount}</span>}

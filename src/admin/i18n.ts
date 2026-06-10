@@ -247,7 +247,7 @@ const ADMIN_I18N_EN: Record<string, string> = {
   'Подпись': 'Caption',
 
   /* ---- stock notifications ---- */
-  'Подписки': 'Stock notifications',
+  'Подписки': 'Subscriptions',
   'Заявки на уведомление о поступлении товаров «под заказ».': 'Requests to be notified when "on order" products are back in stock.',
   'Здесь появятся клиенты, подписавшиеся на поступление товаров.': 'Customers who subscribed for restock alerts will appear here.',
   'Дата подписки': 'Subscription date',
