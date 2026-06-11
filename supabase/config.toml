@@ -1,0 +1,12 @@
+# ELEZON — Supabase project config (CLI). Link with:
+#   supabase link --project-ref qynfoajwaamqgofqdzso
+project_id = "qynfoajwaamqgofqdzso"
+
+# Notification Edge Functions are invoked by a database webhook, not by an
+# end user with a JWT. They are protected instead by the WEBHOOK_SECRET header
+# checked inside each function — so JWT verification is turned off.
+[functions.notify-order]
+verify_jwt = false
+
+[functions.notify-lead]
+verify_jwt = false
