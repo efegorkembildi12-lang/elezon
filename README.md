@@ -176,6 +176,12 @@ Because Pages can't set HTTP response headers or rewrite rules, two adaptations 
    Optionally add `www` as a `CNAME` to `efegorkembildi12-lang.github.io`.
    > No proxy/CDN in front (no Cloudflare) — reg.ru resolves straight to GitHub's IPs, which
    > keeps the path reachable from Russia.
+
+   **Staging on a subdomain (while `elezon.ru` still serves the old site):** test on e.g.
+   `uc.elezon.ru` first. A subdomain uses a **CNAME** record (not A records):
+   reg.ru zone → add `CNAME` host `uc` → value `efegorkembildi12-lang.github.io`. Set the GitHub
+   Pages custom domain + `public/CNAME` to `uc.elezon.ru` to match. At go-live, flip both back to
+   the apex `elezon.ru` and switch to the A records above.
 6. Push to `master` → the workflow builds and deploys. Storefront at `/`, admin at `/admin.html`.
 
 `vercel.json` is kept as an alternative host config but is inert on Pages.
