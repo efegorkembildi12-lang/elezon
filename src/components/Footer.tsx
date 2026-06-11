@@ -49,7 +49,7 @@ export function Footer() {
         <div className="row foot-bottom" style={{ justifyContent: 'space-between', fontSize: 12.5, gap: 16 }}>
           <span className="mono">{t('© 2026 ELEZON · Все права защищены')}</span>
           <span className="row" style={{ gap: 18 }}>
-            <a href="#" style={{ color: 'inherit' }}>{t('Политика конфиденциальности')}</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); go('privacy'); }} style={{ color: 'inherit' }}>{t('Политика конфиденциальности')}</a>
             <a href="#" style={{ color: 'inherit' }}>{t('Публичная оферта')}</a>
           </span>
         </div>

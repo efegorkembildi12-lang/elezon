@@ -12,6 +12,7 @@ import { RequestList } from './pages/RequestList';
 import { Company } from './pages/Company';
 import { Delivery } from './pages/Delivery';
 import { Contacts } from './pages/Contacts';
+import { Privacy } from './pages/Privacy';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -36,6 +37,7 @@ export default function App() {
           <Route path="/company" element={<Company />} />
           <Route path="/delivery" element={<Delivery />} />
           <Route path="/contacts" element={<Contacts />} />
+          <Route path="/privacy" element={<Privacy />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>

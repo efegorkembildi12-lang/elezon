@@ -21,6 +21,7 @@ export function useGo(): Go {
         case 'delivery': navigate('/delivery'); break;
         case 'contacts': navigate('/contacts'); break;
         case 'request': navigate('/request'); break;
+        case 'privacy': navigate('/privacy'); break;
         default: navigate('/');
       }
     },
