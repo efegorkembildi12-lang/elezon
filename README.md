@@ -147,25 +147,50 @@ select vault.create_secret('<same-WEBHOOK_SECRET>', 'elezon_webhook_secret');
 > from `notify@elezon.ru` to `info@elezon.ru`, verify `elezon.ru` in Resend → Domains (add the
 > DNS records), then update the two secrets.
 
-## Deploy (Vercel)
+## Deploy (GitHub Pages)
 
-`vercel.json` sets the build, SPA rewrites (`/admin` → `admin.html`, deep links → `index.html`)
-and security headers (HSTS, `X-Frame-Options: DENY`, CSP scoped to the Supabase origin, etc.).
+The site is served as static files from **GitHub Pages** (free, and reachable from Russia where
+Vercel is not). `.github/workflows/deploy.yml` builds on every push to `master` and publishes
+`dist/`. Custom domain `elezon.ru` is bound via `public/CNAME`.
 
-1. Import the repo in Vercel.
-2. Add env vars `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY` (Production).
-3. Deploy. The storefront is at `/`, the admin at `/admin`.
-4. If you add a custom domain, update the `connect-src`/origins in `vercel.json` CSP and the
-   Supabase Auth redirect URLs accordingly.
+Because Pages can't set HTTP response headers or rewrite rules, two adaptations are baked in:
+
+- **SPA deep links:** `scripts/spa-fallback.mjs` (a `postbuild` step) copies `index.html` to
+  `404.html`, so refreshing `/catalog/:id` still boots the router. The admin is reached at
+  `/admin.html` (no clean-URL rewrite on Pages).
+- **Security headers:** delivered as a `<meta http-equiv="Content-Security-Policy">` in
+  `index.html` / `admin.html` instead of HTTP headers. HSTS and `X-Frame-Options` are
+  header-only and unavailable on Pages — GitHub's "Enforce HTTPS" covers transport.
+
+### One-time setup
+
+1. **Make the repo public** (Settings → General → Danger Zone). Pages is free only on public
+   repos; no secrets are committed (`.env` is gitignored, data is RLS-protected).
+2. **Add Actions secrets** (Settings → Secrets and variables → Actions):
+   `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`.
+3. **Enable Pages** (Settings → Pages → Source: **GitHub Actions**).
+4. **Custom domain:** Settings → Pages → Custom domain → `elezon.ru`; tick **Enforce HTTPS**.
+5. **DNS** for `elezon.ru` (apex) → GitHub Pages A records:
+   `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`
+   (and `AAAA` `2606:50c0:8000::153` … if using IPv6).
+   > **Russia note:** if DNS is on Cloudflare, keep these records **DNS-only (grey cloud)** —
+   > proxying through Cloudflare (orange cloud) routes Russian visitors through Cloudflare's
+   > edge, which is throttled there. Grey cloud resolves straight to GitHub's IPs.
+6. Push to `master` → the workflow builds and deploys. Storefront at `/`, admin at `/admin.html`.
+
+`vercel.json` is kept as an alternative host config but is inert on Pages.
 
 ### Production checklist
 
 - [ ] `.env` **not** committed (`.gitignore` covers `.env*`)
+- [ ] Actions secrets `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY` set
+- [ ] Pages source = GitHub Actions; custom domain `elezon.ru` + Enforce HTTPS on
+- [ ] Cloudflare DNS records for `elezon.ru` are **grey-cloud (DNS-only)**
 - [ ] Public sign-ups disabled in Supabase Auth
 - [ ] Admin user added to `public.admins`
 - [ ] Edge Function secrets set; `WEBHOOK_SECRET` matches the Vault secret
 - [ ] A real request sends an email to `NOTIFY_EMAIL`
-- [ ] Security headers present (check with `curl -I`)
+- [ ] CSP active (DevTools → Network → response, or view-source `<meta http-equiv>`)
 
 ## Notes
 
