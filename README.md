@@ -170,12 +170,12 @@ Because Pages can't set HTTP response headers or rewrite rules, two adaptations 
    `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`.
 3. **Enable Pages** (Settings → Pages → Source: **GitHub Actions**).
 4. **Custom domain:** Settings → Pages → Custom domain → `elezon.ru`; tick **Enforce HTTPS**.
-5. **DNS** for `elezon.ru` (apex) → GitHub Pages A records:
-   `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`
-   (and `AAAA` `2606:50c0:8000::153` … if using IPv6).
-   > **Russia note:** if DNS is on Cloudflare, keep these records **DNS-only (grey cloud)** —
-   > proxying through Cloudflare (orange cloud) routes Russian visitors through Cloudflare's
-   > edge, which is throttled there. Grey cloud resolves straight to GitHub's IPs.
+5. **DNS** for `elezon.ru` is managed at **reg.ru**. In the domain's zone management, set the
+   apex (`@`) **A** records to GitHub Pages — and remove any existing parking/hosting A records:
+   `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`.
+   Optionally add `www` as a `CNAME` to `efegorkembildi12-lang.github.io`.
+   > No proxy/CDN in front (no Cloudflare) — reg.ru resolves straight to GitHub's IPs, which
+   > keeps the path reachable from Russia.
 6. Push to `master` → the workflow builds and deploys. Storefront at `/`, admin at `/admin.html`.
 
 `vercel.json` is kept as an alternative host config but is inert on Pages.
@@ -185,7 +185,7 @@ Because Pages can't set HTTP response headers or rewrite rules, two adaptations 
 - [ ] `.env` **not** committed (`.gitignore` covers `.env*`)
 - [ ] Actions secrets `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY` set
 - [ ] Pages source = GitHub Actions; custom domain `elezon.ru` + Enforce HTTPS on
-- [ ] Cloudflare DNS records for `elezon.ru` are **grey-cloud (DNS-only)**
+- [ ] reg.ru DNS: apex A records point to GitHub IPs (no proxy/CDN in front)
 - [ ] Public sign-ups disabled in Supabase Auth
 - [ ] Admin user added to `public.admins`
 - [ ] Edge Function secrets set; `WEBHOOK_SECRET` matches the Vault secret
