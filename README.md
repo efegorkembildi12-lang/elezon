@@ -8,7 +8,7 @@ model. Implemented in **Vite + React + TypeScript** from a Claude Design handoff
 This repo contains two apps built from one design system:
 
 - **Storefront** (`index.html` → `src/main.tsx`) — public catalog
-- **Admin panel** (`admin.html` → `src/admin/main.tsx`) — Supabase-backed management console behind auth
+- **Admin panel** (`admin/index.html` → `src/admin/main.tsx`) — Supabase-backed management console behind auth
 
 Data lives in **Supabase** (Postgres + Auth + RLS + Realtime). With no env configured the
 apps fall back to the bundled demo catalog (`ELEZON_DATA`), so the UI still runs offline.
@@ -25,7 +25,7 @@ apps fall back to the bundled demo catalog (`ELEZON_DATA`), so the UI still runs
 ```bash
 npm install
 cp .env.example .env  # then fill in VITE_SUPABASE_URL + VITE_SUPABASE_ANON_KEY
-npm run dev          # storefront at /, admin at /admin.html
+npm run dev          # storefront at /, admin at /admin/
 npm run build        # typechecks (tsc -b) then builds both entries
 npm run preview      # preview the production build
 npm run typecheck
@@ -82,7 +82,7 @@ src/
 
 ## Admin panel
 
-Served at `/admin.html` (or `/admin` on Vercel). Behind a Supabase Auth login gate — only users
+Served at `/admin/` (or `/admin` on Vercel). Behind a Supabase Auth login gate — only users
 listed in the `admins` table can sign in. Light content area + dark graphite top bar, same tokens
 and i18n. Sections: dashboard, products, categories, brands, requests (заявки), customers,
 content, settings, subscriptions (подписки). All CRUD persists to Supabase; new storefront
@@ -156,10 +156,10 @@ Vercel is not). `.github/workflows/deploy.yml` builds on every push to `master` 
 Because Pages can't set HTTP response headers or rewrite rules, two adaptations are baked in:
 
 - **SPA deep links:** `scripts/spa-fallback.mjs` (a `postbuild` step) copies `index.html` to
-  `404.html`, so refreshing `/catalog/:id` still boots the router. The admin is reached at
-  `/admin.html` (no clean-URL rewrite on Pages).
+  `404.html`, so refreshing `/catalog/:id` still boots the router. The admin is built as
+  `admin/index.html`, so static hosts serve it at the clean URL `/admin/` with no rewrite.
 - **Security headers:** delivered as a `<meta http-equiv="Content-Security-Policy">` in
-  `index.html` / `admin.html` instead of HTTP headers. HSTS and `X-Frame-Options` are
+  `index.html` / `admin/index.html` instead of HTTP headers. HSTS and `X-Frame-Options` are
   header-only and unavailable on Pages — GitHub's "Enforce HTTPS" covers transport.
 
 ### One-time setup
@@ -182,7 +182,7 @@ Because Pages can't set HTTP response headers or rewrite rules, two adaptations 
    reg.ru zone → add `CNAME` host `uc` → value `efegorkembildi12-lang.github.io`. Set the GitHub
    Pages custom domain + `public/CNAME` to `uc.elezon.ru` to match. At go-live, flip both back to
    the apex `elezon.ru` and switch to the A records above.
-6. Push to `master` → the workflow builds and deploys. Storefront at `/`, admin at `/admin.html`.
+6. Push to `master` → the workflow builds and deploys. Storefront at `/`, admin at `/admin/`.
 
 `vercel.json` is kept as an alternative host config but is inert on Pages.
 
