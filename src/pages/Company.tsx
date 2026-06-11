@@ -48,7 +48,7 @@ export function Company() {
               </div>
             </div>
             <div style={{ width: '100%', aspectRatio: '4 / 3', borderRadius: 'var(--r-lg)', overflow: 'hidden', border: '1px solid var(--line)' }}>
-              <img src="/images/warehouse.png" alt={t('фото склада / команды')} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+              <img src={`${import.meta.env.BASE_URL}images/warehouse.png`} alt={t('фото склада / команды')} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
             </div>
           </div>
 
@@ -72,7 +72,7 @@ export function Company() {
           <div className="brand-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(6,1fr)', gap: 14 }}>
             {brands.map((b) => (
               <div key={b} className="card row" style={{ height: 88, justifyContent: 'center', padding: '0 18px', overflow: 'hidden' }}>
-                <img src={`/images/brand-${b.toLowerCase().replace(/\s+/g, '-')}.png`} alt={b} style={{ maxWidth: '100%', maxHeight: 52, objectFit: 'contain', display: 'block' }} />
+                <img src={`${import.meta.env.BASE_URL}images/brand-${b.toLowerCase().replace(/\s+/g, '-')}.png`} alt={b} style={{ maxWidth: '100%', maxHeight: 52, objectFit: 'contain', display: 'block' }} />
               </div>
             ))}
           </div>

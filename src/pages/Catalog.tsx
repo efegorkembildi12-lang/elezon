@@ -175,7 +175,7 @@ export function Catalog() {
               {items.map((p, i) => (
                 <a key={p.id} href="#" onClick={(e) => { e.preventDefault(); go('product', p); }}
                    className="row list-row" style={{ gap: 18, padding: '16px 18px', borderBottom: i < items.length - 1 ? '1px solid var(--line)' : 'none' }}>
-                  <span className="ph" style={{ width: 64, height: 64, borderRadius: 8, flex: '0 0 auto', overflow: 'hidden' }}><img src={`/images/prod-${p.cat}.png`} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /></span>
+                  <span className="ph" style={{ width: 64, height: 64, borderRadius: 8, flex: '0 0 auto', overflow: 'hidden' }}><img src={`${import.meta.env.BASE_URL}images/prod-${p.cat}.png`} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /></span>
                   <span className="col" style={{ gap: 4, flex: 1, minWidth: 0 }}>
                     <span className="mono" style={{ fontSize: 11, color: 'var(--t-faint)' }}>{p.brand} · {p.article}</span>
                     <span style={{ fontWeight: 600, fontSize: 15, color: 'var(--t-strong)' }}>{t(p.name)}</span>

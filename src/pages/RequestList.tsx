@@ -131,7 +131,7 @@ export function RequestList() {
             </div>
             {rows.map((r, i) => (
               <div key={r.id} className="row request-row" style={{ gap: 16, padding: '16px 18px', borderBottom: i < rows.length - 1 ? '1px solid var(--line)' : 'none' }}>
-                <a href="#" onClick={(e) => { e.preventDefault(); go('product', r.p); }} className="ph no-print" style={{ width: 60, height: 60, borderRadius: 8, flex: '0 0 auto', overflow: 'hidden' }}><img src={`/images/prod-${r.p.cat}.png`} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /></a>
+                <a href="#" onClick={(e) => { e.preventDefault(); go('product', r.p); }} className="ph no-print" style={{ width: 60, height: 60, borderRadius: 8, flex: '0 0 auto', overflow: 'hidden' }}><img src={`${import.meta.env.BASE_URL}images/prod-${r.p.cat}.png`} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /></a>
                 <div className="col" style={{ gap: 4, flex: 1, minWidth: 0 }}>
                   <span className="mono" style={{ fontSize: 11, color: 'var(--t-faint)' }}>{r.p.brand} · {r.p.article}</span>
                   <a href="#" onClick={(e) => { e.preventDefault(); go('product', r.p); }} style={{ fontWeight: 600, fontSize: 14.5, color: 'var(--t-strong)' }}>{t(r.p.name)}</a>

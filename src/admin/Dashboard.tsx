@@ -74,7 +74,7 @@ export default function Dashboard({ go, lang, t }: Props) {
         title={t('С возвращением, Антон')}
         sub={t('Обзор за последние 30 дней')}
         actions={<>
-          <a className="btn btn-ghost btn-sm" href="/"><AdmIcon.ext width={16} height={16} />{t('Открыть сайт')}</a>
+          <a className="btn btn-ghost btn-sm" href={import.meta.env.BASE_URL}><AdmIcon.ext width={16} height={16} />{t('Открыть сайт')}</a>
           <button className="btn btn-accent btn-sm" onClick={() => go('products')}><AdmIcon.plus width={16} height={16} />{t('Добавить товар')}</button>
         </>}
       />

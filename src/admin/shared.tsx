@@ -374,7 +374,7 @@ export function TopBar({ route, go, lang, setLang, store, t }: TopBarProps) {
   return (
     <header className="adm-top">
       <div className="adm-top-row">
-        <a className="adm-brand" href="/" title={t('Вернуться на сайт')}>
+        <a className="adm-brand" href={import.meta.env.BASE_URL} title={t('Вернуться на сайт')}>
           <span className="adm-brand-badge"><AdmIcon.bolt width={18} height={18} /></span>
           <span className="col">
             <span className="adm-brand-name">ELEZON</span>
@@ -440,7 +440,7 @@ export function TopBar({ route, go, lang, setLang, store, t }: TopBarProps) {
                 <button className="adm-pop-item" onClick={() => { go('settings'); setMenu(null); }}>
                   <AdmIcon.gear width={17} height={17} />{t('Настройки')}
                 </button>
-                <a className="adm-pop-item" href="/">
+                <a className="adm-pop-item" href={import.meta.env.BASE_URL}>
                   <AdmIcon.ext width={17} height={17} />{t('Открыть сайт')}
                 </a>
                 <button className="adm-pop-item danger" onClick={() => { supabase?.auth.signOut(); }}>

@@ -39,7 +39,7 @@ export function Contacts() {
               </a>
             ))}
             <div style={{ width: '100%', height: 200, borderRadius: 'var(--r-md)', overflow: 'hidden', border: '1px solid var(--line)' }}>
-              <img src="/images/map.png" alt={t('карта · Москва')} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+              <img src={`${import.meta.env.BASE_URL}images/map.png`} alt={t('карта · Москва')} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
             </div>
           </div>
 

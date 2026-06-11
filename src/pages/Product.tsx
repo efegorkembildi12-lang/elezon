@@ -95,12 +95,12 @@ export function Product() {
         {/* gallery */}
         <div className="col" style={{ gap: 14 }}>
           <div style={{ position: 'relative', width: '100%', aspectRatio: '1 / 1', border: '1px solid var(--line)', borderRadius: 'var(--r-lg)', overflow: 'hidden', background: 'var(--surface-2)' }}>
-            <img src={`/images/prod-${p.cat}.png`} alt={t(p.name)} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+            <img src={`${import.meta.env.BASE_URL}images/prod-${p.cat}.png`} alt={t(p.name)} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
             <span className="chip" style={{ position: 'absolute', top: 16, left: 16, background: 'var(--surface)', zIndex: 2 }}>{p.brand}</span>
           </div>
           <div className="row" style={{ gap: 12 }}>
             {[0, 1, 2].map((i) => (
-              <div key={i} className="ph" style={{ width: 80, height: 80, borderRadius: 10, overflow: 'hidden', border: '1px solid var(--line)', opacity: i === 0 ? 1 : 0.55 }}><img src={`/images/prod-${p.cat}.png`} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} /></div>
+              <div key={i} className="ph" style={{ width: 80, height: 80, borderRadius: 10, overflow: 'hidden', border: '1px solid var(--line)', opacity: i === 0 ? 1 : 0.55 }}><img src={`${import.meta.env.BASE_URL}images/prod-${p.cat}.png`} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} /></div>
             ))}
           </div>
         </div>

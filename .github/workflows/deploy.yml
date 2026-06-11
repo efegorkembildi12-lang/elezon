@@ -38,6 +38,9 @@ jobs:
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          # Project-page preview is served from /elezon/. At go-live on the custom
+          # domain elezon.ru, remove this line (base falls back to '/').
+          VITE_BASE: /elezon/
 
       - uses: actions/upload-pages-artifact@v3
         with:

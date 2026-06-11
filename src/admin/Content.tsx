@@ -84,7 +84,7 @@ function ContentSection({ t }: { t: (s: string) => string }) {
       <div className="adm-card" style={{ maxWidth: 720, marginTop: 18 }}>
         <div className="adm-card-head">
           <span className="adm-card-title">{t('Статистика')}</span>
-          <a href="/" target="_blank" rel="noopener noreferrer"
+          <a href={import.meta.env.BASE_URL} target="_blank" rel="noopener noreferrer"
             className="adm-mini-btn" title={t('Открыть страницу на сайте')} style={{ textDecoration: 'none' }}>
             <AdmIcon.ext width={13} height={13} />
           </a>

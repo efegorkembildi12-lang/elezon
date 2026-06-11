@@ -37,7 +37,7 @@ export function ProductCard({ p }: { p: Product }) {
       }}
     >
       <div style={{ position: 'relative', aspectRatio: '1 / 1', borderBottom: '1px solid var(--line)', overflow: 'hidden', background: 'var(--surface-2)' }}>
-        <img src={`/images/prod-${p.cat}.png`} alt={t(p.name)} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+        <img src={`${import.meta.env.BASE_URL}images/prod-${p.cat}.png`} alt={t(p.name)} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
         <span className="chip" style={{ position: 'absolute', top: 12, left: 12, background: 'var(--surface)' }}>{p.brand}</span>
         <span className={'chip ' + (p.stock === 'in' ? 'stock' : 'order')} style={{ position: 'absolute', top: 12, right: 12 }}>
           <span className="dot" /> {p.stock === 'in' ? t('в наличии') : t('под заказ')}
