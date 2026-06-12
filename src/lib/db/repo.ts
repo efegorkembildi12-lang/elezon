@@ -323,6 +323,35 @@ export async function insertLead(lead: { email: string; productId: string; produ
   if (error) throw error;
 }
 
+/* ============================ team (admins) ============================ */
+export interface TeamMember { user_id: string; email: string; name: string; role: string; created_at: string; }
+
+async function invokeTeam(body: Record<string, unknown>): Promise<Record<string, unknown>> {
+  const { data, error } = await db().functions.invoke('team', { body });
+  if (error) {
+    // FunctionsHttpError carries the original Response — pull the {error} code out.
+    let code = error.message;
+    try {
+      const ctx = (error as { context?: Response }).context;
+      const j = ctx && typeof ctx.json === 'function' ? await ctx.json() : null;
+      if (j?.error) code = j.error;
+    } catch { /* keep the generic message */ }
+    throw new Error(code);
+  }
+  if (data?.error) throw new Error(String(data.error));
+  return data ?? {};
+}
+export async function teamList(): Promise<TeamMember[]> {
+  const data = await invokeTeam({ action: 'list' });
+  return (data.members as TeamMember[]) ?? [];
+}
+export async function teamAdd(input: { email: string; password: string; name: string; role: string }): Promise<void> {
+  await invokeTeam({ action: 'add', ...input });
+}
+export async function teamRemove(userId: string): Promise<void> {
+  await invokeTeam({ action: 'remove', user_id: userId });
+}
+
 /* ============================ auth ============================ */
 export async function isCurrentUserAdmin(): Promise<boolean> {
   const { data, error } = await db().rpc('is_admin');

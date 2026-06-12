@@ -10,3 +10,9 @@ verify_jwt = false
 
 [functions.notify-lead]
 verify_jwt = false
+
+# Team management is called from the admin browser with the user's JWT, but the
+# function verifies admin membership itself (and must return CORS/JSON for the
+# preflight + 401/403 cases), so platform JWT verification is off here too.
+[functions.team]
+verify_jwt = false

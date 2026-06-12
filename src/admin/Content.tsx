@@ -1,10 +1,11 @@
 /* ELEZON — Admin Content + Settings sections */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useStore } from './store';
 import {
-  AdmIcon, PageHead, Field, TextInput, TextArea, Toggle, useToast,
+  AdmIcon, PageHead, Field, TextInput, TextArea, Toggle, useToast, ConfirmModal,
 } from './shared';
+import { teamList, teamAdd, teamRemove, type TeamMember } from '../lib/db/repo';
 import type { AdminSection, ContentData, StoreSettings, AccentKey } from './types';
 import type { SiteStat } from '../data/siteStats';
 
@@ -136,11 +137,152 @@ const ACCENTS: { value: AccentKey; label: string; color: string }[] = [
   { value: 'violet', label: 'Виолет', color: 'oklch(0.72 0.2 295)'  },
 ];
 
-const TEAM = [
-  { name: 'Антон Кречет',  role: 'Владелец',         email: 'anton@elezon.ru' },
-  { name: 'Мария Лозова',  role: 'Контент-менеджер', email: 'maria@elezon.ru' },
-  { name: 'Игорь Дёмин',   role: 'Контент-менеджер', email: 'igor@elezon.ru'  },
-];
+const TEAM_ERR: Record<string, string> = {
+  invalid_email: 'Некорректный e-mail',
+  weak_password: 'Пароль не короче 8 символов',
+  cannot_remove_self: 'Нельзя удалить самого себя',
+  last_admin: 'Нельзя удалить последнего администратора',
+};
+
+function TeamCard({ t }: { t: (s: string) => string }) {
+  const toast = useToast();
+  const [members, setMembers] = useState<TeamMember[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadErr, setLoadErr] = useState('');
+  const [open, setOpen] = useState(false);
+  const [form, setForm] = useState({ email: '', password: '', name: '', role: 'Менеджер' });
+  const [busy, setBusy] = useState(false);
+  const [formErr, setFormErr] = useState('');
+  const [removeId, setRemoveId] = useState<string | null>(null);
+
+  const refresh = () => {
+    setLoading(true);
+    teamList()
+      .then((m) => { setMembers(m); setLoadErr(''); })
+      .catch((e) => setLoadErr(e instanceof Error ? e.message : String(e)))
+      .finally(() => setLoading(false));
+  };
+  useEffect(refresh, []);
+
+  const msg = (code: string) => t(TEAM_ERR[code] ?? code);
+
+  const handleAdd = async () => {
+    setFormErr('');
+    setBusy(true);
+    try {
+      await teamAdd(form);
+      toast(t('Пользователь добавлен'));
+      setOpen(false);
+      setForm({ email: '', password: '', name: '', role: 'Менеджер' });
+      refresh();
+    } catch (e) {
+      setFormErr(msg(e instanceof Error ? e.message : String(e)));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleRemove = async (id: string) => {
+    setRemoveId(null);
+    try {
+      await teamRemove(id);
+      toast(t('Пользователь удалён'));
+      refresh();
+    } catch (e) {
+      toast(msg(e instanceof Error ? e.message : String(e)));
+    }
+  };
+
+  return (
+    <div className="adm-card">
+      <div className="adm-card-head">
+        <span className="adm-card-title">{t('Команда')}</span>
+        <button className="btn btn-ghost btn-sm" onClick={() => { setFormErr(''); setOpen(true); }}>
+          <AdmIcon.plus width={14} height={14} />{t('Добавить пользователя')}
+        </button>
+      </div>
+      {loadErr ? (
+        <div className="adm-card-body"><span style={{ fontSize: 13, color: 'oklch(0.55 0.16 25)' }}>{t('Не удалось загрузить команду')}: {loadErr}</span></div>
+      ) : loading ? (
+        <div className="adm-card-body"><span style={{ fontSize: 13.5, color: 'var(--t-muted)' }}>{t('Загрузка…')}</span></div>
+      ) : (
+        <table className="adm-table">
+          <thead><tr>
+            <th>{t('Контакт')}</th>
+            <th style={{ width: 150 }}>{t('Роль')}</th>
+            <th style={{ width: 60 }} />
+          </tr></thead>
+          <tbody>
+            {members.map((m) => (
+              <tr key={m.user_id}>
+                <td>
+                  <span className="adm-td-strong">{m.name || m.email}</span>
+                  <div className="adm-td-sub">{m.email}</div>
+                </td>
+                <td style={{ color: 'var(--t-muted)', fontSize: 13.5 }}>{t(m.role)}</td>
+                <td>
+                  <button className="adm-mini-btn danger" title={t('Удалить')} onClick={() => setRemoveId(m.user_id)}>
+                    <AdmIcon.trash width={14} height={14} />
+                  </button>
+                </td>
+              </tr>
+            ))}
+            {members.length === 0 && (
+              <tr><td colSpan={3} style={{ color: 'var(--t-faint)', fontSize: 13.5 }}>{t('Нет пользователей')}</td></tr>
+            )}
+          </tbody>
+        </table>
+      )}
+
+      {open && (
+        <div className="adm-card-body col" style={{ gap: 0, borderTop: '1px solid var(--line)' }}>
+          <div className="row" style={{ gap: 14 }}>
+            <div style={{ flex: 1 }}>
+              <Field label={t('Имя')}>
+                <TextInput value={form.name} onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))} placeholder={t('Имя')} />
+              </Field>
+            </div>
+            <div style={{ flex: 1 }}>
+              <Field label={t('Роль')}>
+                <TextInput value={form.role} onChange={(e) => setForm((p) => ({ ...p, role: e.target.value }))} placeholder={t('Менеджер')} />
+              </Field>
+            </div>
+          </div>
+          <div className="row" style={{ gap: 14 }}>
+            <div style={{ flex: 1 }}>
+              <Field label="E-mail">
+                <TextInput type="email" value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} placeholder="user@elezon.ru" />
+              </Field>
+            </div>
+            <div style={{ flex: 1 }}>
+              <Field label={t('Пароль')}>
+                <TextInput type="text" value={form.password} onChange={(e) => setForm((p) => ({ ...p, password: e.target.value }))} placeholder={t('Минимум 8 символов')} />
+              </Field>
+            </div>
+          </div>
+          {formErr && <span style={{ fontSize: 12.5, color: 'oklch(0.55 0.16 25)', padding: '0 20px 4px' }}>{formErr}</span>}
+          <div className="row" style={{ gap: 10, padding: '8px 20px 16px' }}>
+            <button className="btn btn-ghost btn-sm" onClick={() => setOpen(false)} disabled={busy}>{t('Отмена')}</button>
+            <button className="btn btn-accent btn-sm" onClick={handleAdd} disabled={busy}>
+              {busy ? t('Добавление…') : t('Добавить')}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {removeId && (
+        <ConfirmModal
+          title={t('Удалить пользователя?')}
+          body={t('Доступ к панели будет отозван немедленно.')}
+          confirmLabel={t('Да, удалить')}
+          onConfirm={() => handleRemove(removeId)}
+          onClose={() => setRemoveId(null)}
+          t={t}
+        />
+      )}
+    </div>
+  );
+}
 
 const TOGGLE_KEYS: Array<[keyof StoreSettings, string]> = [
   ['notifyNew',   'Уведомления о новых заявках'],
@@ -253,31 +395,7 @@ function SettingsSection({ t }: { t: (s: string) => string }) {
         </div>
 
         {/* Team */}
-        <div className="adm-card">
-          <div className="adm-card-head">
-            <span className="adm-card-title">{t('Команда')}</span>
-            <button className="btn btn-ghost btn-sm" disabled style={{ cursor: 'not-allowed', opacity: .5 }}>
-              <AdmIcon.plus width={14} height={14} />{t('Пригласить')}
-            </button>
-          </div>
-          <table className="adm-table">
-            <thead><tr>
-              <th>{t('Контакт')}</th>
-              <th style={{ width: 180 }}>{t('Роль')}</th>
-            </tr></thead>
-            <tbody>
-              {TEAM.map((m) => (
-                <tr key={m.email}>
-                  <td>
-                    <span className="adm-td-strong">{t(m.name)}</span>
-                    <div className="adm-td-sub">{m.email}</div>
-                  </td>
-                  <td style={{ color: 'var(--t-muted)', fontSize: 13.5 }}>{t(m.role)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <TeamCard t={t} />
 
         {/* Reset */}
         <div className="adm-card">
