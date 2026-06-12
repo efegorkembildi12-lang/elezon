@@ -1,7 +1,8 @@
 // ELEZON — generate the real-catalogue import SQL from the scraped old site.
-// Reads scrape/old-site/products.json (698 products) and emits a single SQL file
-// that REMOVES the demo catalogue (products + brands) and inserts the real one.
-// Categories are kept (they already match) — only their counts are refreshed.
+// Reads scrape/old-site/products.json (698 products) + the translation maps in
+// scrape/old-site/i18n/ and emits SQL that REMOVES the demo catalogue and inserts
+// the real one with bilingual fields (EN name, RU/EN description, RU/EN specs).
+// Categories are kept; only products and brands are replaced.
 //
 // Run:  node scripts/gen-real-import.mjs
 // Out:  supabase/import-real-catalog.sql   (run it in the Supabase SQL editor)
@@ -9,43 +10,38 @@
 import { readFile, writeFile } from 'node:fs/promises';
 
 const SRC = 'scrape/old-site/products.json';
+const I18N = 'scrape/old-site/i18n';
 const OUT = 'supabase/import-real-catalog.sql';
 
-// Category id (slug) → keep in sync with categories table / ELEZON_DATA.
 const CATEGORY_IDS = new Set(['avtomatizatsiya-zdaniy', 'kip', 'nizkovoltnoe-oborudovanie', 'knx']);
-
-const KNOWN_BRANDS = [
-  'Siemens', 'ABB', 'Schneider', 'Beckhoff', 'Carlo Gavazzi', 'Wago',
-  'Phoenix', 'Weidmüller', 'Lovato', 'Theben', 'Gira', 'Jung', 'Wieland',
-];
-const BRAND_COUNTRY = {
-  Siemens: 'Германия', ABB: 'Швейцария', Schneider: 'Франция',
-  Beckhoff: 'Германия', 'Carlo Gavazzi': 'Италия', Wago: 'Германия',
-};
+const KNOWN_BRANDS = ['Siemens', 'ABB', 'Schneider', 'Beckhoff', 'Carlo Gavazzi', 'Wago'];
+const BRAND_COUNTRY = { Siemens: 'Германия', ABB: 'Швейцария', Schneider: 'Франция', Beckhoff: 'Германия' };
+const EN_DESC_KEY = 'Описание на английском';
 
 const slugify = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 const q = (v) => `'${String(v).replace(/'/g, "''")}'`;
+const jb = (v) => `'${JSON.stringify(v).replace(/'/g, "''")}'::jsonb`;
 const numOrNull = (v) => {
   const n = parseFloat(v);
   return Number.isFinite(n) && n > 0 ? String(Math.round(n)) : 'null';
 };
 
-function brandOf(name) {
-  for (const b of KNOWN_BRANDS) if (name.includes(b)) return b;
-  return 'Siemens'; // catalogue is ~99% Siemens
-}
+const readJson = async (p, fallback) => {
+  try { return JSON.parse(await readFile(`${I18N}/${p}`, 'utf8')); }
+  catch { return fallback; }
+};
 
-function typeOf(name, brand) {
+const TYPES = await readJson('types.json', {});
+const SPECS = await readJson('specs.json', { keys: {}, values: {} });
+const DESCS = await readJson('descs.json', {}); // EN description -> RU description (filled in batches)
+
+const brandOf = (name) => KNOWN_BRANDS.find((b) => name.includes(b)) || 'Siemens';
+const typeOf = (name, brand) => {
   const i = name.indexOf(brand);
   const head = (i > 0 ? name.slice(0, i) : name).trim();
-  if (head) return head;
-  return name.split(/\s+/).slice(0, 2).join(' ');
-}
-
-function idOf(url) {
-  const seg = url.replace(/\/$/, '').split('/');
-  return seg[seg.length - 1] || slugify(url);
-}
+  return head || name.split(/\s+/).slice(0, 2).join(' ');
+};
+const idOf = (url) => { const s = url.replace(/\/$/, '').split('/'); return s[s.length - 1] || slugify(url); };
 
 const products = JSON.parse(await readFile(SRC, 'utf8'));
 
@@ -53,6 +49,7 @@ const seenId = new Set();
 const rows = [];
 const catCount = {};
 const brandCount = {};
+let withNameEn = 0, withDescEn = 0, withDescRu = 0;
 
 products.forEach((p, idx) => {
   const cat = CATEGORY_IDS.has(p.categorySlug) ? p.categorySlug : 'kip';
@@ -61,55 +58,60 @@ products.forEach((p, idx) => {
   seenId.add(id);
 
   const brand = brandOf(p.name);
-  const type = typeOf(p.name, brand);
-  const specs = Object.entries(p.specs || {}).map(([k, v]) => [k, v]);
+  const ruType = typeOf(p.name, brand);
+  const typeEn = TYPES[ruType] || ruType;
+  const nameEn = p.name.startsWith(ruType) ? (typeEn + p.name.slice(ruType.length)) : `${typeEn} ${brand} ${p.article}`.trim();
+
+  const descEn = (p.specs && p.specs[EN_DESC_KEY]) || '';
+  const descRu = DESCS[descEn] || '';
+
+  const ruSpecs = Object.entries(p.specs || {}).filter(([k]) => k !== EN_DESC_KEY).map(([k, v]) => [k, v]);
+  const enSpecs = ruSpecs.map(([k, v]) => [SPECS.keys[k] || k, SPECS.values[v] || v]);
+
+  if (nameEn && nameEn !== p.name) withNameEn++;
+  if (descEn) withDescEn++;
+  if (descRu) withDescRu++;
 
   catCount[cat] = (catCount[cat] || 0) + 1;
   brandCount[brand] = (brandCount[brand] || 0) + 1;
 
   rows.push(
     '(' + [
-      q(id), q(p.name), q(cat), q(brand), q(type), q(p.article || ''),
-      numOrNull(p.price), q('order'), '0', q(JSON.stringify(specs)) + '::jsonb', String(idx),
+      q(id), q(p.name), q(nameEn), q(cat), q(brand), q(ruType), q(p.article || ''),
+      numOrNull(p.price), q('order'), '0', jb(ruSpecs), jb(enSpecs), q(descRu), q(descEn), String(idx),
     ].join(',') + ')',
   );
 });
 
 const brands = Object.keys(brandCount).sort((a, b) => brandCount[b] - brandCount[a]);
 const brandRows = brands.map((b, i) =>
-  '(' + [q(slugify(b)), q(b), q(BRAND_COUNTRY[b] || ''), q(slugify(b)), String(brandCount[b]), String(i)].join(',') + ')',
-);
-
-const catUpdates = Object.entries(catCount)
-  .map(([id, n]) => `update categories set count=${n} where id=${q(id)};`)
-  .join('\n');
+  '(' + [q(slugify(b)), q(b), q(BRAND_COUNTRY[b] || ''), q(slugify(b)), String(brandCount[b]), String(i)].join(',') + ')');
+const catUpdates = Object.entries(catCount).map(([id, n]) => `update categories set count=${n} where id=${q(id)};`).join('\n');
 
 const sql = `-- ELEZON — real catalogue import (generated by scripts/gen-real-import.mjs).
--- Replaces the demo catalogue with ${products.length} real products scraped from the
--- old site. Run once in the Supabase SQL editor. Categories are preserved; only
--- products and brands are replaced.
+-- Replaces the demo catalogue with ${products.length} real products. Bilingual: EN name,
+-- RU/EN description, RU/EN specs. Run once in the Supabase SQL editor (needs 0003 columns).
+-- Categories are preserved; only products and brands are replaced.
 
 begin;
 
--- 1) Remove the demo catalogue.
 delete from products;
 delete from brands;
 
--- 2) Refresh category counts (categories themselves are kept).
 ${catUpdates}
 
--- 3) Real brands.
 insert into brands (id,name,country,slug,count,pos) values
 ${brandRows.join(',\n')};
 
--- 4) Real products (${rows.length}).
-insert into products (id,name,cat,brand,type,article,price,stock,qty,specs,pos) values
+insert into products (id,name,name_en,cat,brand,type,article,price,stock,qty,specs,specs_en,description,description_en,pos) values
 ${rows.join(',\n')};
 
 commit;
 `;
 
 await writeFile(OUT, sql);
-console.log(`[gen-real-import] ${rows.length} products, ${brands.length} brands → ${OUT}`);
-console.log('  categories:', JSON.stringify(catCount));
-console.log('  brands:', brands.map((b) => `${b}(${brandCount[b]})`).join(', '));
+console.log(`[gen-real-import] ${rows.length} products → ${OUT}`);
+console.log(`  EN names:        ${withNameEn}/${products.length}`);
+console.log(`  EN descriptions: ${withDescEn}/${products.length}`);
+console.log(`  RU descriptions: ${withDescRu}/${products.length} (filled from descs.json)`);
+console.log('  categories:', JSON.stringify(catCount), '| brands:', brands.join(', '));
