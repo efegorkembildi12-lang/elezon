@@ -6,7 +6,7 @@ import { uploadProductImage } from '../lib/db/repo';
 import {
   afmt, AdmIcon, PageHead, Toolbar, SearchBox, Th, EmptyState,
   Drawer, ConfirmModal, Field, TextInput, TextArea, SelectInput,
-  StockBadge, useToast,
+  StockBadge, useToast, Toggle,
   sortRows,
 } from './shared';
 import type { AdminSection, AdminProduct, SortState } from './types';
@@ -22,7 +22,7 @@ type StockFilter = 'all' | 'in' | 'order';
 
 const BLANK: Omit<AdminProduct, 'id'> = {
   name: '', cat: '', brand: '', type: '', article: '', price: null, stock: 'in', qty: 0, specs: [],
-  nameEn: '', description: '', descriptionEn: '', specsEn: [], imageUrl: '',
+  nameEn: '', description: '', descriptionEn: '', specsEn: [], imageUrl: '', featured: false,
 };
 
 function ProductForm({
@@ -38,7 +38,7 @@ function ProductForm({
 }) {
   const [form, setForm] = useState<Omit<AdminProduct, 'id'>>(
     product
-      ? { name: product.name, cat: product.cat, brand: product.brand, type: product.type, article: product.article, price: product.price, stock: product.stock, qty: product.qty, specs: product.specs, nameEn: product.nameEn ?? '', description: product.description ?? '', descriptionEn: product.descriptionEn ?? '', specsEn: product.specsEn ?? [], imageUrl: product.imageUrl ?? '' }
+      ? { name: product.name, cat: product.cat, brand: product.brand, type: product.type, article: product.article, price: product.price, stock: product.stock, qty: product.qty, specs: product.specs, nameEn: product.nameEn ?? '', description: product.description ?? '', descriptionEn: product.descriptionEn ?? '', specsEn: product.specsEn ?? [], imageUrl: product.imageUrl ?? '', featured: product.featured ?? false }
       : { ...BLANK },
   );
   const [uploading, setUploading] = useState(false);
@@ -170,6 +170,14 @@ function ProductForm({
             />
           </Field>
         )}
+
+        <div className="row" style={{ justifyContent: 'space-between', alignItems: 'center', gap: 14, marginTop: 8, padding: '4px 0' }}>
+          <div className="col" style={{ gap: 2 }}>
+            <span style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--t-strong)' }}>{t('Показать на главной')}</span>
+            <span style={{ fontSize: 12, color: 'var(--t-faint)' }}>{t('В блоке «Популярное» на главной странице')}</span>
+          </div>
+          <Toggle value={form.featured ?? false} onChange={(v) => set('featured', v)} />
+        </div>
 
         <div className="adm-form-section" style={{ marginTop: 18 }}>{t('Изображение')}</div>
         <div className="row" style={{ gap: 14, alignItems: 'center', marginBottom: 8 }}>

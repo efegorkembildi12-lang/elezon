@@ -28,6 +28,7 @@ export interface Product {
   descriptionEn?: string; // EN description
   specsEn?: [string, string][]; // EN specs (falls back to `specs`)
   imageUrl?: string; // image filename in public/images/products/ ('' => category placeholder)
+  featured?: boolean; // shown in the homepage "Popular" rail
 }
 
 export interface Stat {

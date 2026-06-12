@@ -21,6 +21,7 @@ export interface AdminProduct {
   descriptionEn?: string; // EN description
   specsEn?: [string, string][]; // EN specs
   imageUrl?: string; // image filename in public/images/products/
+  featured?: boolean; // shown in the homepage "Popular" rail
   _i?: number;
 }
 

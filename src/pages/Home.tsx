@@ -59,7 +59,11 @@ function ProductRail({ title, eyebrow }: { title: string; eyebrow: string }) {
   const go = useGo();
   const { t } = useI18n();
   const { products } = useCatalog();
-  const items = products.filter((p) => p.stock === 'in').slice(0, 8);
+  // Prefer admin-picked featured products; fall back to in-stock, then to any —
+  // most of the real catalogue is "on order", so an in-stock-only rail is empty.
+  const featured = products.filter((p) => p.featured);
+  const inStock = products.filter((p) => p.stock === 'in');
+  const items = (featured.length ? featured : inStock.length ? inStock : products).slice(0, 8);
   return (
     <section className="section" style={{ paddingTop: 20 }}>
       <div className="wrap">

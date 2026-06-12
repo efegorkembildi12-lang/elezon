@@ -104,6 +104,8 @@ const ADMIN_I18N_EN: Record<string, string> = {
   'Наименование (EN)': 'Name (EN)',
   'Описание (RU)': 'Description (RU)',
   'Описание (EN)': 'Description (EN)',
+  'Показать на главной': 'Show on homepage',
+  'В блоке «Популярное» на главной странице': 'In the "Popular" block on the homepage',
   'Изображение': 'Image',
   'Загрузить фото': 'Upload photo',
   'Заменить фото': 'Replace photo',

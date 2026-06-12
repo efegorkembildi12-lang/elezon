@@ -23,7 +23,7 @@ const rid = (p: string) => p + '-' + Math.random().toString(36).slice(2, 10);
 interface ProductRow {
   id: string; name: string; cat: string; brand: string; type: string;
   article: string; price: number | null; stock: string; qty: number; specs: unknown; pos: number;
-  name_en: string; description: string; description_en: string; specs_en: unknown; image_url: string;
+  name_en: string; description: string; description_en: string; specs_en: unknown; image_url: string; featured: boolean;
 }
 const specArr = (v: unknown): [string, string][] => (Array.isArray(v) ? (v as [string, string][]) : []);
 const toProduct = (r: ProductRow): AdminProduct => ({
@@ -31,7 +31,7 @@ const toProduct = (r: ProductRow): AdminProduct => ({
   price: r.price, stock: r.stock === 'order' ? 'order' : 'in', qty: r.qty,
   specs: specArr(r.specs), _i: r.pos,
   nameEn: r.name_en ?? '', description: r.description ?? '', descriptionEn: r.description_en ?? '',
-  specsEn: specArr(r.specs_en), imageUrl: r.image_url ?? '',
+  specsEn: specArr(r.specs_en), imageUrl: r.image_url ?? '', featured: r.featured ?? false,
 });
 const productCols = (p: Partial<AdminProduct>) => {
   const r: Record<string, unknown> = {};
@@ -49,6 +49,7 @@ const productCols = (p: Partial<AdminProduct>) => {
   if (p.descriptionEn !== undefined) r.description_en = p.descriptionEn;
   if (p.specsEn !== undefined) r.specs_en = p.specsEn;
   if (p.imageUrl !== undefined) r.image_url = p.imageUrl;
+  if (p.featured !== undefined) r.featured = p.featured;
   return r;
 };
 export async function fetchProducts(): Promise<AdminProduct[]> {
