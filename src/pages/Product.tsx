@@ -111,7 +111,7 @@ export function Product() {
             <span className="mono" style={{ fontSize: 12, color: 'var(--t-faint)' }}>{t('Артикул:')} {p.article}</span>
           </div>
           <h1 className="display" style={{ fontSize: 34, lineHeight: 1.1 }}>{productName(p, lang)}</h1>
-          <div className="row" style={{ gap: 18, fontSize: 13.5, color: 'var(--t-muted)' }}>
+          <div className="row" style={{ gap: 18, fontSize: 13.5, color: 'var(--t-muted)', flexWrap: 'wrap' }}>
             <span>{t('Бренд:')} <b style={{ color: 'var(--t-strong)' }}>{p.brand}</b></span>
             <span>{t('Тип:')} <b style={{ color: 'var(--t-strong)' }}>{t(p.type)}</b></span>
           </div>
@@ -131,9 +131,9 @@ export function Product() {
                 </div>
               )}
             </div>
-            <div className="row" style={{ gap: 10 }}>
-              <button className="btn btn-accent" style={{ flex: 1, justifyContent: 'center' }} onClick={() => setQuote(true)}><Icon.doc width="17" height="17" /> {t('Запрос цены')}</button>
-              <button className="btn btn-ghost" onClick={() => rl.toggle(p.id)} style={inList ? { borderColor: 'var(--accent)', color: 'var(--accent-press)', background: 'var(--accent-soft)' } : {}}>
+            <div className="row" style={{ gap: 10, flexWrap: 'wrap' }}>
+              <button className="btn btn-accent" style={{ flex: '1 1 140px', justifyContent: 'center' }} onClick={() => setQuote(true)}><Icon.doc width="17" height="17" /> {t('Запрос цены')}</button>
+              <button className="btn btn-ghost" style={{ flex: '1 1 120px', justifyContent: 'center', ...(inList ? { borderColor: 'var(--accent)', color: 'var(--accent-press)', background: 'var(--accent-soft)' } : {}) }} onClick={() => rl.toggle(p.id)}>
                 {inList ? <><Icon.check width="17" height="17" /> {t('В списке')}</> : <><Icon.plus width="17" height="17" /> {t('В список')}</>}
               </button>
               <a href="tel:+74951474761" className="btn btn-dark"><Icon.phone width="17" height="17" /></a>
@@ -154,9 +154,9 @@ export function Product() {
 
       {/* tabs */}
       <div className="wrap" style={{ padding: '0 32px 80px' }}>
-        <div className="row" style={{ gap: 4, borderBottom: '1px solid var(--line)', marginBottom: 28 }}>
+        <div className="row" style={{ gap: 4, borderBottom: '1px solid var(--line)', marginBottom: 28, overflowX: 'auto' }}>
           {([['specs', 'Характеристики'], ['desc', 'Описание'], ['delivery', 'Доставка']] as const).map(([id, l]) => (
-            <button key={id} onClick={() => setTab(id)} style={{ background: 'none', border: 'none', padding: '14px 18px', fontSize: 14.5, fontWeight: 600, color: tab === id ? 'var(--t-strong)' : 'var(--t-muted)', borderBottom: `2px solid ${tab === id ? 'var(--accent)' : 'transparent'}`, marginBottom: -1 }}>{t(l)}</button>
+            <button key={id} onClick={() => setTab(id)} style={{ background: 'none', border: 'none', padding: '14px 18px', fontSize: 14.5, fontWeight: 600, whiteSpace: 'nowrap', flexShrink: 0, color: tab === id ? 'var(--t-strong)' : 'var(--t-muted)', borderBottom: `2px solid ${tab === id ? 'var(--accent)' : 'transparent'}`, marginBottom: -1 }}>{t(l)}</button>
           ))}
         </div>
         <div className="product-tab" style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 48 }}>

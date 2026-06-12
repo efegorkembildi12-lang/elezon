@@ -76,13 +76,13 @@ export function Header() {
       <div style={{ borderBottom: `1px solid ${dark ? 'var(--ink-line)' : 'var(--line)'}`, fontSize: 12.5 }}>
         <div className="wrap row" style={{ height: 38, justifyContent: 'space-between', color: dark ? 'var(--t-on-dark-muted)' : 'var(--t-muted)' }}>
           <div className="row" style={{ gap: 18 }}>
-            <span className="row mono" style={{ gap: 6 }}><Icon.pin width="13" height="13" /> {t('Москва, ул. Большая Филёвская, 4')}</span>
+            <span className="row mono hide-sm" style={{ gap: 6 }}><Icon.pin width="13" height="13" /> {t('Москва, ул. Большая Филёвская, 4')}</span>
             <span className="row mono hide-sm" style={{ gap: 6, opacity: 0.8 }}><Icon.truck width="13" height="13" /> {t('Отгрузка со склада 24 ч')}</span>
           </div>
           <div className="row" style={{ gap: 18 }}>
             <a href="mailto:info@elezon.ru" className="mono" style={{ color: 'inherit' }}>info@elezon.ru</a>
-            <span>{t('Только для юридических лиц')}</span>
-            <span style={{ opacity: 0.4 }}>·</span>
+            <span className="hide-sm">{t('Только для юридических лиц')}</span>
+            <span className="hide-sm" style={{ opacity: 0.4 }}>·</span>
             <LangToggle lang={lang} setLang={setLang} dark={dark} />
           </div>
         </div>

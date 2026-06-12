@@ -52,7 +52,7 @@ img { display: block; max-width: 100%; }
   letter-spacing: 0.14em; text-transform: uppercase; color: var(--t-muted);
 }
 
-h1, h2, h3, h4 { color: var(--t-strong); margin: 0; line-height: 1.04; letter-spacing: -0.02em; }
+h1, h2, h3, h4 { color: var(--t-strong); margin: 0; line-height: 1.04; letter-spacing: -0.02em; overflow-wrap: break-word; }
 
 .display {
   font-family: var(--f-display);
@@ -162,12 +162,21 @@ label.lbl { font-size: 13px; font-weight: 600; color: var(--t-body); display: bl
 
 /* ---------- Responsive ---------- */
 .show-sm { display: none !important; }
+/* Header desktop↔mobile switch. Engages below 960px so the full nav + icon row +
+   phone button (needs ~930px) collapses to the hamburger on tablets instead of
+   overflowing. Header-only classes, so this does not affect layout grids. */
+@media (max-width: 960px) {
+  .hide-sm { display: none !important; }
+  .show-sm { display: flex !important; }
+}
 @media (max-width: 1080px) {
   .prod-grid, .prod-grid-3, .prod-grid-cat, .brand-grid, .trust-grid, .about-grid, .values-grid, .steps-grid, .cat-grid { grid-template-columns: repeat(2, 1fr) !important; }
   .trust-grid > div, .about-grid > div { border-right: none !important; border-bottom: 1px solid var(--line); }
   .catalog-layout { grid-template-columns: 1fr !important; }
   .cat-filters { position: static !important; }
   .product-top, .product-tab, .company-split, .pay-split, .contacts-grid, .cta-band, .heroC-grid { grid-template-columns: 1fr !important; }
+  /* let collapsed grid cells shrink below their content's intrinsic width (default min-width:auto otherwise forces overflow) */
+  .product-top > *, .product-tab > *, .contacts-grid > *, .cta-band > * { min-width: 0; }
   .request-layout { grid-template-columns: 1fr !important; }
   .request-form { position: static !important; }
   .footer-grid { grid-template-columns: 1fr 1fr !important; }
@@ -175,14 +184,20 @@ label.lbl { font-size: 13px; font-weight: 600; color: var(--t-body); display: bl
 }
 @media (max-width: 720px) {
   .wrap { padding: 0 18px; }
-  .hide-sm { display: none !important; }
-  .show-sm { display: flex !important; }
   .section { padding: 56px 0; }
   .heroA { font-size: 40px !important; }
   .heroB { font-size: 48px !important; }
   .heroC { font-size: 38px !important; }
   .display { letter-spacing: -0.02em; }
-  .prod-grid, .prod-grid-3, .prod-grid-cat, .cat-grid, .values-grid, .steps-grid, .footer-grid, .brand-grid { grid-template-columns: 1fr !important; }
+  /* shrink large inner headings that have no hero size class */
+  .section-head .display { font-size: 30px !important; }
+  .ph-title { font-size: 34px !important; }
+  /* CTA band: relax fixed desktop padding + headline so it breathes on mobile */
+  .cta-band { padding: 36px 22px !important; gap: 28px !important; }
+  .cta-band .display { font-size: 28px !important; }
+  /* product grids stay 2-up on phones (denser, nicer than a single sparse column);
+     content-heavy grids below collapse to one column */
+  .cat-grid, .values-grid, .steps-grid, .footer-grid, .brand-grid { grid-template-columns: 1fr !important; }
   .cat-card { grid-template-columns: 1fr !important; }
   .cat-card .ph { display: none; }
   .cat-index-row { grid-template-columns: 48px 1fr 44px !important; gap: 14px !important; }
@@ -190,6 +205,14 @@ label.lbl { font-size: 13px; font-weight: 600; color: var(--t-body); display: bl
   .stat-row > div { border-right: none !important; padding-right: 24px !important; margin-right: 24px !important; }
   .section-head { flex-direction: column; align-items: flex-start; }
   .request-row { flex-wrap: wrap; }
+}
+@media (max-width: 480px) {
+  .wrap { padding: 0 14px; }
+  .section-head .display { font-size: 26px !important; }
+  .ph-title { font-size: 28px !important; }
+  .cta-band .display { font-size: 24px !important; }
+  /* very narrow phones: product cards go single column */
+  .prod-grid, .prod-grid-3, .prod-grid-cat { grid-template-columns: 1fr !important; }
 }
 
 /* fade/slide-in on mount — must stay visible even if the animation is paused
