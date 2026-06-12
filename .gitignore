@@ -16,3 +16,4 @@ dist-ssr
 .env.*
 !.env.example
 scrape/
+supabase/import-real-catalog.sql
