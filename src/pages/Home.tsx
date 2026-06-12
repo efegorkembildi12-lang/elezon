@@ -8,6 +8,7 @@ import { useGo } from '../lib/useGo';
 import { useSiteStats } from '../lib/useSiteStats';
 import { useI18n } from '../i18n/I18nContext';
 import { useCatalog } from '../store/CatalogProvider';
+import { categoryArt } from '../components/CategoryArt';
 
 function BrandStrip({ dark }: { dark?: boolean }) {
   const { t } = useI18n();
@@ -129,6 +130,7 @@ export function Home() {
           <div className="cat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 18 }}>
             {categories.map((c) => {
               const CI = catIcon[c.id];
+              const Art = categoryArt[c.id];
               return (
                 <a key={c.id} href="#" onClick={(e) => { e.preventDefault(); go('category', c); }}
                    className="card cat-card" style={{ padding: 0, overflow: 'hidden', display: 'grid', gridTemplateColumns: '1fr 1.1fr', minHeight: 230 }}>
@@ -144,24 +146,16 @@ export function Home() {
                   </div>
                   <div style={{
                     borderLeft: '1px solid var(--line)', position: 'relative', overflow: 'hidden',
-                    display: 'grid', placeItems: 'center',
-                    background: 'radial-gradient(circle at 72% 26%, var(--accent-soft), transparent 58%), var(--surface-2)',
+                    display: 'grid', placeItems: 'center', padding: '24px 28px',
+                    background: 'radial-gradient(circle at 74% 24%, var(--accent-soft), transparent 60%), var(--surface-2)',
                   }}>
-                    {/* faint oversized watermark for depth */}
-                    {CI ? (
-                      <CI
-                        width="190" height="190" aria-hidden
-                        style={{ position: 'absolute', right: -34, bottom: -34, color: 'var(--line)', strokeWidth: 0.9, opacity: 0.7 }}
-                      />
+                    {Art ? (
+                      <Art />
+                    ) : CI ? (
+                      <span style={{ width: 84, height: 84, borderRadius: 20, background: 'var(--ink)', color: 'var(--accent)', display: 'grid', placeItems: 'center', boxShadow: 'var(--sh-lg)' }}>
+                        <CI width="40" height="40" />
+                      </span>
                     ) : null}
-                    {/* solid accent-on-ink icon tile (matches the card badge, larger) */}
-                    <span style={{
-                      position: 'relative', width: 84, height: 84, borderRadius: 20,
-                      background: 'var(--ink)', color: 'var(--accent)',
-                      display: 'grid', placeItems: 'center', boxShadow: 'var(--sh-lg)',
-                    }}>
-                      {CI ? <CI width="40" height="40" /> : null}
-                    </span>
                   </div>
                 </a>
               );
