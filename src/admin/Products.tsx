@@ -1,7 +1,8 @@
 /* ELEZON — Admin Products section */
 
-import { useState } from 'react';
+import { useState, type ChangeEvent } from 'react';
 import { useStore } from './store';
+import { uploadProductImage } from '../lib/db/repo';
 import {
   afmt, AdmIcon, PageHead, Toolbar, SearchBox, Th, EmptyState,
   Drawer, ConfirmModal, Field, TextInput, TextArea, SelectInput,
@@ -21,7 +22,7 @@ type StockFilter = 'all' | 'in' | 'order';
 
 const BLANK: Omit<AdminProduct, 'id'> = {
   name: '', cat: '', brand: '', type: '', article: '', price: null, stock: 'in', qty: 0, specs: [],
-  nameEn: '', description: '', descriptionEn: '', specsEn: [],
+  nameEn: '', description: '', descriptionEn: '', specsEn: [], imageUrl: '',
 };
 
 function ProductForm({
@@ -37,12 +38,32 @@ function ProductForm({
 }) {
   const [form, setForm] = useState<Omit<AdminProduct, 'id'>>(
     product
-      ? { name: product.name, cat: product.cat, brand: product.brand, type: product.type, article: product.article, price: product.price, stock: product.stock, qty: product.qty, specs: product.specs, nameEn: product.nameEn ?? '', description: product.description ?? '', descriptionEn: product.descriptionEn ?? '', specsEn: product.specsEn ?? [] }
+      ? { name: product.name, cat: product.cat, brand: product.brand, type: product.type, article: product.article, price: product.price, stock: product.stock, qty: product.qty, specs: product.specs, nameEn: product.nameEn ?? '', description: product.description ?? '', descriptionEn: product.descriptionEn ?? '', specsEn: product.specsEn ?? [], imageUrl: product.imageUrl ?? '' }
       : { ...BLANK },
   );
+  const [uploading, setUploading] = useState(false);
+  const [uploadErr, setUploadErr] = useState('');
 
   const set = <K extends keyof Omit<AdminProduct, 'id'>>(k: K, v: Omit<AdminProduct, 'id'>[K]) =>
     setForm((p) => ({ ...p, [k]: v }));
+
+  const onPickImage = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = ''; // allow re-picking the same file
+    if (!file) return;
+    if (!file.type.startsWith('image/')) { setUploadErr(t('Только изображения')); return; }
+    if (file.size > 5 * 1024 * 1024) { setUploadErr(t('Файл больше 5 МБ')); return; }
+    setUploadErr('');
+    setUploading(true);
+    try {
+      const url = await uploadProductImage(file);
+      set('imageUrl', url);
+    } catch {
+      setUploadErr(t('Ошибка загрузки'));
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const addSpec = () => setForm((p) => ({ ...p, specs: [...p.specs, ['', '']] }));
   const setSpec = (i: number, j: 0 | 1, v: string) =>
@@ -149,6 +170,33 @@ function ProductForm({
             />
           </Field>
         )}
+
+        <div className="adm-form-section" style={{ marginTop: 18 }}>{t('Изображение')}</div>
+        <div className="row" style={{ gap: 14, alignItems: 'center', marginBottom: 8 }}>
+          <div style={{ width: 84, height: 84, flexShrink: 0, borderRadius: 10, border: '1px solid var(--line)', overflow: 'hidden', background: 'var(--surface-2)', display: 'grid', placeItems: 'center' }}>
+            {form.imageUrl ? (
+              <img
+                src={/^https?:\/\//.test(form.imageUrl) ? form.imageUrl : `${import.meta.env.BASE_URL}images/products/${form.imageUrl}`}
+                alt="" style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 6 }}
+              />
+            ) : (
+              <AdmIcon.box width={22} height={22} />
+            )}
+          </div>
+          <div className="col" style={{ gap: 8, flex: 1 }}>
+            <label className="btn btn-ghost btn-sm" style={{ alignSelf: 'flex-start', cursor: uploading ? 'wait' : 'pointer' }}>
+              <AdmIcon.plus width={14} height={14} />
+              {uploading ? t('Загрузка…') : (form.imageUrl ? t('Заменить фото') : t('Загрузить фото'))}
+              <input type="file" accept="image/*" onChange={onPickImage} disabled={uploading} style={{ display: 'none' }} />
+            </label>
+            {form.imageUrl && (
+              <button className="btn btn-ghost btn-sm danger" type="button" onClick={() => set('imageUrl', '')} style={{ alignSelf: 'flex-start' }}>
+                <AdmIcon.x width={14} height={14} />{t('Удалить изображение')}
+              </button>
+            )}
+            {uploadErr && <span style={{ fontSize: 12, color: 'var(--danger, #c0392b)' }}>{uploadErr}</span>}
+          </div>
+        </div>
 
         <div className="adm-form-section" style={{ marginTop: 18 }}>{t('Описание')}</div>
         <Field label={t('Описание (RU)')}>

@@ -23,7 +23,7 @@ const rid = (p: string) => p + '-' + Math.random().toString(36).slice(2, 10);
 interface ProductRow {
   id: string; name: string; cat: string; brand: string; type: string;
   article: string; price: number | null; stock: string; qty: number; specs: unknown; pos: number;
-  name_en: string; description: string; description_en: string; specs_en: unknown;
+  name_en: string; description: string; description_en: string; specs_en: unknown; image_url: string;
 }
 const specArr = (v: unknown): [string, string][] => (Array.isArray(v) ? (v as [string, string][]) : []);
 const toProduct = (r: ProductRow): AdminProduct => ({
@@ -31,7 +31,7 @@ const toProduct = (r: ProductRow): AdminProduct => ({
   price: r.price, stock: r.stock === 'order' ? 'order' : 'in', qty: r.qty,
   specs: specArr(r.specs), _i: r.pos,
   nameEn: r.name_en ?? '', description: r.description ?? '', descriptionEn: r.description_en ?? '',
-  specsEn: specArr(r.specs_en),
+  specsEn: specArr(r.specs_en), imageUrl: r.image_url ?? '',
 });
 const productCols = (p: Partial<AdminProduct>) => {
   const r: Record<string, unknown> = {};
@@ -48,6 +48,7 @@ const productCols = (p: Partial<AdminProduct>) => {
   if (p.description !== undefined) r.description = p.description;
   if (p.descriptionEn !== undefined) r.description_en = p.descriptionEn;
   if (p.specsEn !== undefined) r.specs_en = p.specsEn;
+  if (p.imageUrl !== undefined) r.image_url = p.imageUrl;
   return r;
 };
 export async function fetchProducts(): Promise<AdminProduct[]> {
@@ -66,6 +67,16 @@ export async function updateProduct(id: string, patch: Partial<AdminProduct>): P
 export async function deleteProduct(id: string): Promise<void> {
   const { error } = await db().from('products').delete().eq('id', id);
   if (error) throw error;
+}
+/** Upload an admin-supplied product photo to Storage; returns its public URL
+    (stored verbatim in products.image_url). Bucket: product-images (0005). */
+export async function uploadProductImage(file: File): Promise<string> {
+  const ext = (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg';
+  const path = `${rid('img')}.${ext}`;
+  const store = db().storage.from('product-images');
+  const { error } = await store.upload(path, file, { upsert: false, contentType: file.type || undefined });
+  if (error) throw error;
+  return store.getPublicUrl(path).data.publicUrl;
 }
 
 /* ============================ categories ============================ */

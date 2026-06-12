@@ -11,7 +11,7 @@ import { useGo } from '../lib/useGo';
 import { useI18n } from '../i18n/I18nContext';
 import { useRequestList } from '../store/RequestListContext';
 import { useCatalog } from '../store/CatalogProvider';
-import { productName, productDesc, productSpecs } from '../lib/localize';
+import { productName, productDesc, productSpecs, productImage } from '../lib/localize';
 import type { Product as ProductType } from '../types';
 
 function QuoteForm({ p, onClose }: { p: ProductType | null; onClose: () => void }) {
@@ -96,13 +96,11 @@ export function Product() {
         {/* gallery */}
         <div className="col" style={{ gap: 14 }}>
           <div style={{ position: 'relative', width: '100%', aspectRatio: '1 / 1', border: '1px solid var(--line)', borderRadius: 'var(--r-lg)', overflow: 'hidden', background: 'var(--surface-2)' }}>
-            <img src={`${import.meta.env.BASE_URL}images/prod-${p.cat}.png`} alt={productName(p, lang)} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+            <img src={productImage(p)} alt={productName(p, lang)} onError={(e) => { e.currentTarget.src = `${import.meta.env.BASE_URL}images/prod-${p.cat}.png`; }} style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block', padding: 16 }} />
             <span className="chip" style={{ position: 'absolute', top: 16, left: 16, background: 'var(--surface)', zIndex: 2 }}>{p.brand}</span>
           </div>
           <div className="row" style={{ gap: 12 }}>
-            {[0, 1, 2].map((i) => (
-              <div key={i} className="ph" style={{ width: 80, height: 80, borderRadius: 10, overflow: 'hidden', border: '1px solid var(--line)', opacity: i === 0 ? 1 : 0.55 }}><img src={`${import.meta.env.BASE_URL}images/prod-${p.cat}.png`} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} /></div>
-            ))}
+            <div className="ph" style={{ width: 80, height: 80, borderRadius: 10, overflow: 'hidden', border: '1px solid var(--line)' }}><img src={productImage(p)} alt="" onError={(e) => { e.currentTarget.src = `${import.meta.env.BASE_URL}images/prod-${p.cat}.png`; }} style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block', padding: 6 }} /></div>
           </div>
         </div>
 

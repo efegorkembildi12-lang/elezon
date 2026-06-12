@@ -27,6 +27,7 @@ export interface Product {
   description?: string; // RU description
   descriptionEn?: string; // EN description
   specsEn?: [string, string][]; // EN specs (falls back to `specs`)
+  imageUrl?: string; // image filename in public/images/products/ ('' => category placeholder)
 }
 
 export interface Stat {

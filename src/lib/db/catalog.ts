@@ -15,7 +15,7 @@ export interface CatalogBundle {
 interface ProductRow {
   id: string; name: string; cat: string; brand: string; type: string;
   article: string; price: number | null; stock: string; qty: number; specs: unknown;
-  name_en?: string; description?: string; description_en?: string; specs_en?: unknown;
+  name_en?: string; description?: string; description_en?: string; specs_en?: unknown; image_url?: string;
 }
 interface CategoryRow {
   id: string; name: string; short: string; code: string; count: number; desc: string; sub: string[] | null;
@@ -30,6 +30,7 @@ function toProduct(r: ProductRow): Product {
     specs: specArr(r.specs),
     nameEn: r.name_en || undefined, description: r.description || undefined,
     descriptionEn: r.description_en || undefined, specsEn: specArr(r.specs_en),
+    imageUrl: r.image_url || undefined,
   };
 }
 

@@ -20,6 +20,7 @@ export interface AdminProduct {
   description?: string; // RU description
   descriptionEn?: string; // EN description
   specsEn?: [string, string][]; // EN specs
+  imageUrl?: string; // image filename in public/images/products/
   _i?: number;
 }
 

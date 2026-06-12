@@ -14,3 +14,12 @@ export const productDesc = (p: Product, lang: Lang): string =>
 
 export const productSpecs = (p: Product, lang: Lang): [string, string][] =>
   lang === 'en' && p.specsEn && p.specsEn.length ? p.specsEn : p.specs;
+
+/** Resolve a product's photo to a URL. Admin uploads store a full Storage URL
+    (used as-is); bulk-imported photos store a bare filename served from the repo
+    (public/images/products/). Empty => category placeholder. */
+export const productImage = (p: Product): string => {
+  if (!p.imageUrl) return `${import.meta.env.BASE_URL}images/prod-${p.cat}.png`;
+  if (/^https?:\/\//.test(p.imageUrl)) return p.imageUrl;
+  return `${import.meta.env.BASE_URL}images/products/${p.imageUrl}`;
+};
