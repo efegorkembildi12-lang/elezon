@@ -8,7 +8,6 @@ import { useGo } from '../lib/useGo';
 import { useSiteStats } from '../lib/useSiteStats';
 import { useI18n } from '../i18n/I18nContext';
 import { useCatalog } from '../store/CatalogProvider';
-import { productImage } from '../lib/localize';
 
 function BrandStrip({ dark }: { dark?: boolean }) {
   const { t } = useI18n();
@@ -86,15 +85,8 @@ function ProductRail({ title, eyebrow }: { title: string; eyebrow: string }) {
 export function Home() {
   const go = useGo();
   const { t } = useI18n();
-  const { categories, products } = useCatalog();
+  const { categories } = useCatalog();
   const stats = useSiteStats();
-  // A representative product photo per category for the category cards — prefers
-  // a featured item, else the first product with a real image. null => watermark.
-  const catCover = (catId: string): string | null => {
-    const inCat = products.filter((p) => p.cat === catId && p.imageUrl);
-    const pick = inCat.find((p) => p.featured) ?? inCat[0];
-    return pick ? productImage(pick) : null;
-  };
   return (
     <div className="rise">
       {/* dark hero band */}
@@ -150,17 +142,26 @@ export function Home() {
                       <span className="row link-arrow" style={{ marginTop: 6, fontSize: 14.5 }}>{c.count} {t('позиций')} <Icon.arrow width="16" height="16" /></span>
                     </div>
                   </div>
-                  <div className="ph" style={{ borderLeft: '1px solid var(--line)', position: 'relative', overflow: 'hidden' }}>
-                    {catCover(c.id) ? (
-                      <img
-                        src={catCover(c.id) as string}
-                        alt=""
-                        loading="lazy"
-                        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }}
+                  <div style={{
+                    borderLeft: '1px solid var(--line)', position: 'relative', overflow: 'hidden',
+                    display: 'grid', placeItems: 'center',
+                    background: 'radial-gradient(circle at 72% 26%, var(--accent-soft), transparent 58%), var(--surface-2)',
+                  }}>
+                    {/* faint oversized watermark for depth */}
+                    {CI ? (
+                      <CI
+                        width="190" height="190" aria-hidden
+                        style={{ position: 'absolute', right: -34, bottom: -34, color: 'var(--line)', strokeWidth: 0.9, opacity: 0.7 }}
                       />
-                    ) : CI ? (
-                      <CI width="64" height="64" style={{ color: 'var(--line-2)', strokeWidth: 1 }} />
                     ) : null}
+                    {/* solid accent-on-ink icon tile (matches the card badge, larger) */}
+                    <span style={{
+                      position: 'relative', width: 84, height: 84, borderRadius: 20,
+                      background: 'var(--ink)', color: 'var(--accent)',
+                      display: 'grid', placeItems: 'center', boxShadow: 'var(--sh-lg)',
+                    }}>
+                      {CI ? <CI width="40" height="40" /> : null}
+                    </span>
                   </div>
                 </a>
               );
