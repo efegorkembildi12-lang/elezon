@@ -1,5 +1,8 @@
 /* ELEZON — Admin-specific types. Storefront types live in src/types.ts. */
 
+import type { ProductDoc } from '../types';
+export type { ProductDoc };
+
 export type OrderStatus = 'new' | 'work' | 'ship' | 'done' | 'lost';
 export type CustomerStatus = 'active' | 'lead' | 'inactive';
 export type OrderChannel = 'form' | 'email' | 'phone';
@@ -22,6 +25,7 @@ export interface AdminProduct {
   specsEn?: [string, string][]; // EN specs
   imageUrl?: string; // image filename in public/images/products/
   featured?: boolean; // shown in the homepage "Popular" rail
+  documents?: ProductDoc[]; // datasheets / PDFs
   _i?: number;
 }
 

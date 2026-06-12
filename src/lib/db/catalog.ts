@@ -4,7 +4,7 @@
 
 import { supabase } from '../supabase';
 import { ELEZON_DATA } from '../../data/catalog';
-import type { Product, Category, Stock } from '../../types';
+import type { Product, Category, Stock, ProductDoc } from '../../types';
 
 export interface CatalogBundle {
   products: Product[];
@@ -15,7 +15,7 @@ export interface CatalogBundle {
 interface ProductRow {
   id: string; name: string; cat: string; brand: string; type: string;
   article: string; price: number | null; stock: string; qty: number; specs: unknown;
-  name_en?: string; description?: string; description_en?: string; specs_en?: unknown; image_url?: string; featured?: boolean;
+  name_en?: string; description?: string; description_en?: string; specs_en?: unknown; image_url?: string; featured?: boolean; documents?: unknown;
 }
 interface CategoryRow {
   id: string; name: string; short: string; code: string; count: number; desc: string; sub: string[] | null;
@@ -23,6 +23,8 @@ interface CategoryRow {
 interface BrandRow { id: string; name: string; }
 
 const specArr = (v: unknown): [string, string][] => (Array.isArray(v) ? (v as [string, string][]) : []);
+const docArr = (v: unknown): ProductDoc[] =>
+  Array.isArray(v) ? (v as ProductDoc[]).filter((d) => d && typeof d.file === 'string') : [];
 function toProduct(r: ProductRow): Product {
   return {
     id: r.id, name: r.name, cat: r.cat, brand: r.brand, type: r.type, article: r.article,
@@ -31,6 +33,7 @@ function toProduct(r: ProductRow): Product {
     nameEn: r.name_en || undefined, description: r.description || undefined,
     descriptionEn: r.description_en || undefined, specsEn: specArr(r.specs_en),
     imageUrl: r.image_url || undefined, featured: r.featured || undefined,
+    documents: docArr(r.documents),
   };
 }
 

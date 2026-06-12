@@ -180,6 +180,7 @@ export const I18N_EN: Record<string, string> = {
   'Отгрузка 24 ч': 'Ships 24 h', 'Гарантия производителя': 'Manufacturer warranty', 'Оригинал': 'Original',
   'Характеристики': 'Specifications', 'Описание': 'Description', 'Доставка': 'Delivery',
   'Документы': 'Documents', 'Техническая спецификация (PDF)': 'Technical datasheet (PDF)',
+  'Документ': 'Document', 'Документы предоставляются по запросу': 'Documents available on request',
   'Сертификат соответствия': 'Certificate of conformity', 'Инструкция по монтажу': 'Installation manual',
   'Похожие позиции': 'Related items', 'Вся категория': 'Full category',
   'производства': 'by',

@@ -2,7 +2,7 @@
 
 import { useState, type ChangeEvent } from 'react';
 import { useStore } from './store';
-import { uploadProductImage } from '../lib/db/repo';
+import { uploadProductImage, uploadProductDocument } from '../lib/db/repo';
 import {
   afmt, AdmIcon, PageHead, Toolbar, SearchBox, Th, EmptyState,
   Drawer, ConfirmModal, Field, TextInput, TextArea, SelectInput,
@@ -22,7 +22,7 @@ type StockFilter = 'all' | 'in' | 'order';
 
 const BLANK: Omit<AdminProduct, 'id'> = {
   name: '', cat: '', brand: '', type: '', article: '', price: null, stock: 'in', qty: 0, specs: [],
-  nameEn: '', description: '', descriptionEn: '', specsEn: [], imageUrl: '', featured: false,
+  nameEn: '', description: '', descriptionEn: '', specsEn: [], imageUrl: '', featured: false, documents: [],
 };
 
 function ProductForm({
@@ -38,7 +38,7 @@ function ProductForm({
 }) {
   const [form, setForm] = useState<Omit<AdminProduct, 'id'>>(
     product
-      ? { name: product.name, cat: product.cat, brand: product.brand, type: product.type, article: product.article, price: product.price, stock: product.stock, qty: product.qty, specs: product.specs, nameEn: product.nameEn ?? '', description: product.description ?? '', descriptionEn: product.descriptionEn ?? '', specsEn: product.specsEn ?? [], imageUrl: product.imageUrl ?? '', featured: product.featured ?? false }
+      ? { name: product.name, cat: product.cat, brand: product.brand, type: product.type, article: product.article, price: product.price, stock: product.stock, qty: product.qty, specs: product.specs, nameEn: product.nameEn ?? '', description: product.description ?? '', descriptionEn: product.descriptionEn ?? '', specsEn: product.specsEn ?? [], imageUrl: product.imageUrl ?? '', featured: product.featured ?? false, documents: product.documents ?? [] }
       : { ...BLANK },
   );
   const [uploading, setUploading] = useState(false);
@@ -64,6 +64,30 @@ function ProductForm({
       setUploading(false);
     }
   };
+
+  const [docUploading, setDocUploading] = useState(false);
+  const [docErr, setDocErr] = useState('');
+  const onPickDoc = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    if (file.size > 25 * 1024 * 1024) { setDocErr(t('Файл больше 25 МБ')); return; }
+    setDocErr('');
+    setDocUploading(true);
+    try {
+      const url = await uploadProductDocument(file);
+      const title = file.name.replace(/\.[^.]+$/, '');
+      setForm((p) => ({ ...p, documents: [...(p.documents ?? []), { title, file: url }] }));
+    } catch {
+      setDocErr(t('Ошибка загрузки'));
+    } finally {
+      setDocUploading(false);
+    }
+  };
+  const setDocTitle = (i: number, title: string) =>
+    setForm((p) => ({ ...p, documents: (p.documents ?? []).map((d, di) => di === i ? { ...d, title } : d) }));
+  const removeDoc = (i: number) =>
+    setForm((p) => ({ ...p, documents: (p.documents ?? []).filter((_, di) => di !== i) }));
 
   const addSpec = () => setForm((p) => ({ ...p, specs: [...p.specs, ['', '']] }));
   const setSpec = (i: number, j: 0 | 1, v: string) =>
@@ -205,6 +229,28 @@ function ProductForm({
             {uploadErr && <span style={{ fontSize: 12, color: 'var(--danger, #c0392b)' }}>{uploadErr}</span>}
           </div>
         </div>
+
+        <div className="adm-form-section" style={{ marginTop: 18 }}>{t('Документы')}</div>
+        <div className="col" style={{ gap: 8, marginBottom: 8 }}>
+          {(form.documents ?? []).map((d, i) => (
+            <div key={i} className="row" style={{ gap: 10, alignItems: 'center' }}>
+              <AdmIcon.box width={15} height={15} style={{ color: 'var(--t-faint)', flexShrink: 0 }} />
+              <TextInput value={d.title} onChange={(e) => setDocTitle(i, e.target.value)} placeholder={t('Название документа')} style={{ flex: 1 }} />
+              <a href={/^https?:\/\//.test(d.file) ? d.file : `${import.meta.env.BASE_URL}docs/products/${d.file}`} target="_blank" rel="noopener noreferrer" className="adm-mini-btn" title={t('Открыть')} style={{ flexShrink: 0 }}>
+                <AdmIcon.edit width={14} height={14} />
+              </a>
+              <button className="adm-mini-btn danger" type="button" onClick={() => removeDoc(i)} title={t('Удалить')}>
+                <AdmIcon.x width={14} height={14} />
+              </button>
+            </div>
+          ))}
+        </div>
+        <label className="btn btn-ghost btn-sm" style={{ alignSelf: 'flex-start', cursor: docUploading ? 'wait' : 'pointer' }}>
+          <AdmIcon.plus width={14} height={14} />
+          {docUploading ? t('Загрузка…') : t('Добавить документ')}
+          <input type="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.zip" onChange={onPickDoc} disabled={docUploading} style={{ display: 'none' }} />
+        </label>
+        {docErr && <span style={{ fontSize: 12, color: 'var(--danger, #c0392b)', marginTop: 6 }}>{docErr}</span>}
 
         <div className="adm-form-section" style={{ marginTop: 18 }}>{t('Описание')}</div>
         <Field label={t('Описание (RU)')}>

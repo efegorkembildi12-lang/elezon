@@ -11,7 +11,7 @@ import { useGo } from '../lib/useGo';
 import { useI18n } from '../i18n/I18nContext';
 import { useRequestList } from '../store/RequestListContext';
 import { useCatalog } from '../store/CatalogProvider';
-import { productName, productDesc, productSpecs, productImage } from '../lib/localize';
+import { productName, productDesc, productSpecs, productImage, docUrl } from '../lib/localize';
 import type { Product as ProductType } from '../types';
 
 function QuoteForm({ p, onClose }: { p: ProductType | null; onClose: () => void }) {
@@ -187,11 +187,19 @@ export function Product() {
           <div className="card" style={{ padding: 22, height: 'fit-content', background: 'var(--surface-2)' }}>
             <span className="eyebrow">{t('Документы')}</span>
             <div className="col" style={{ gap: 8, marginTop: 14 }}>
-              {['Техническая спецификация (PDF)', 'Сертификат соответствия', 'Инструкция по монтажу'].map((d) => (
-                <a key={d} href="#" onClick={(e) => e.preventDefault()} className="row" style={{ gap: 10, padding: '11px 12px', background: 'var(--surface)', border: '1px solid var(--line)', borderRadius: 'var(--r-sm)', fontSize: 13.5, color: 'var(--t-body)' }}>
-                  <Icon.doc width="17" height="17" style={{ color: 'var(--accent-press)' }} /> {t(d)}
-                </a>
-              ))}
+              {p.documents && p.documents.length ? (
+                p.documents.map((d, i) => (
+                  <a
+                    key={i} href={docUrl(d)} target="_blank" rel="noopener noreferrer" download
+                    className="row" style={{ gap: 10, padding: '11px 12px', background: 'var(--surface)', border: '1px solid var(--line)', borderRadius: 'var(--r-sm)', fontSize: 13.5, color: 'var(--t-body)' }}
+                  >
+                    <Icon.doc width="17" height="17" style={{ color: 'var(--accent-press)', flexShrink: 0 }} />
+                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{d.title || t('Документ')}</span>
+                  </a>
+                ))
+              ) : (
+                <span style={{ fontSize: 13, color: 'var(--t-faint)' }}>{t('Документы предоставляются по запросу')}</span>
+              )}
             </div>
           </div>
         </div>

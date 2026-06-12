@@ -49,7 +49,7 @@ const seenId = new Set();
 const rows = [];
 const catCount = {};
 const brandCount = {};
-let withNameEn = 0, withDescEn = 0, withDescRu = 0, withImg = 0;
+let withNameEn = 0, withDescEn = 0, withDescRu = 0, withImg = 0, withDocs = 0;
 
 products.forEach((p, idx) => {
   const cat = CATEGORY_IDS.has(p.categorySlug) ? p.categorySlug : 'kip';
@@ -72,6 +72,7 @@ products.forEach((p, idx) => {
   if (descEn) withDescEn++;
   if (descRu) withDescRu++;
   if (p.imageFile) withImg++;
+  if (p.documents && p.documents.length) withDocs++;
 
   catCount[cat] = (catCount[cat] || 0) + 1;
   brandCount[brand] = (brandCount[brand] || 0) + 1;
@@ -79,7 +80,7 @@ products.forEach((p, idx) => {
   rows.push(
     '(' + [
       q(id), q(p.name), q(nameEn), q(cat), q(brand), q(ruType), q(p.article || ''),
-      numOrNull(p.price), q('order'), '0', jb(ruSpecs), jb(enSpecs), q(descRu), q(descEn), q(p.imageFile || ''), String(idx),
+      numOrNull(p.price), q('order'), '0', jb(ruSpecs), jb(enSpecs), q(descRu), q(descEn), q(p.imageFile || ''), jb(p.documents || []), String(idx),
     ].join(',') + ')',
   );
 });
@@ -104,7 +105,7 @@ ${catUpdates}
 insert into brands (id,name,country,slug,count,pos) values
 ${brandRows.join(',\n')};
 
-insert into products (id,name,name_en,cat,brand,type,article,price,stock,qty,specs,specs_en,description,description_en,image_url,pos) values
+insert into products (id,name,name_en,cat,brand,type,article,price,stock,qty,specs,specs_en,description,description_en,image_url,documents,pos) values
 ${rows.join(',\n')};
 
 commit;
@@ -116,4 +117,5 @@ console.log(`  EN names:        ${withNameEn}/${products.length}`);
 console.log(`  EN descriptions: ${withDescEn}/${products.length}`);
 console.log(`  RU descriptions: ${withDescRu}/${products.length} (filled from descs.json)`);
 console.log(`  images:          ${withImg}/${products.length}`);
+console.log(`  with documents:  ${withDocs}/${products.length}`);
 console.log('  categories:', JSON.stringify(catCount), '| brands:', brands.join(', '));

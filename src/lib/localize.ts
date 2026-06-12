@@ -2,7 +2,7 @@
    own RU + EN values (unlike UI strings, which use the shared i18n dictionary).
    These helpers pick the active language and fall back to the other one. */
 
-import type { Product, Lang } from '../types';
+import type { Product, Lang, ProductDoc } from '../types';
 
 export const productName = (p: Product, lang: Lang): string =>
   lang === 'en' && p.nameEn ? p.nameEn : p.name;
@@ -14,6 +14,12 @@ export const productDesc = (p: Product, lang: Lang): string =>
 
 export const productSpecs = (p: Product, lang: Lang): [string, string][] =>
   lang === 'en' && p.specsEn && p.specsEn.length ? p.specsEn : p.specs;
+
+/** Resolve a document's file to a URL. Admin uploads store a full Storage URL
+    (used as-is); bulk-imported docs store a bare filename served from the repo
+    (public/docs/products/). */
+export const docUrl = (doc: ProductDoc): string =>
+  /^https?:\/\//.test(doc.file) ? doc.file : `${import.meta.env.BASE_URL}docs/products/${doc.file}`;
 
 /** Resolve a product's photo to a URL. Admin uploads store a full Storage URL
     (used as-is); bulk-imported photos store a bare filename served from the repo

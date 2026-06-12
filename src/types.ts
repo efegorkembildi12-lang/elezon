@@ -12,6 +12,11 @@ export interface Category {
   sub: string[];
 }
 
+export interface ProductDoc {
+  title: string;
+  file: string; // bare filename (repo public/docs/products/) or full Storage URL
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -29,6 +34,7 @@ export interface Product {
   specsEn?: [string, string][]; // EN specs (falls back to `specs`)
   imageUrl?: string; // image filename in public/images/products/ ('' => category placeholder)
   featured?: boolean; // shown in the homepage "Popular" rail
+  documents?: ProductDoc[]; // datasheets / PDFs
 }
 
 export interface Stat {
