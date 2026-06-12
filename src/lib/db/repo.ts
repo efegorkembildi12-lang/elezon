@@ -23,11 +23,15 @@ const rid = (p: string) => p + '-' + Math.random().toString(36).slice(2, 10);
 interface ProductRow {
   id: string; name: string; cat: string; brand: string; type: string;
   article: string; price: number | null; stock: string; qty: number; specs: unknown; pos: number;
+  name_en: string; description: string; description_en: string; specs_en: unknown;
 }
+const specArr = (v: unknown): [string, string][] => (Array.isArray(v) ? (v as [string, string][]) : []);
 const toProduct = (r: ProductRow): AdminProduct => ({
   id: r.id, name: r.name, cat: r.cat, brand: r.brand, type: r.type, article: r.article,
   price: r.price, stock: r.stock === 'order' ? 'order' : 'in', qty: r.qty,
-  specs: Array.isArray(r.specs) ? (r.specs as [string, string][]) : [], _i: r.pos,
+  specs: specArr(r.specs), _i: r.pos,
+  nameEn: r.name_en ?? '', description: r.description ?? '', descriptionEn: r.description_en ?? '',
+  specsEn: specArr(r.specs_en),
 });
 const productCols = (p: Partial<AdminProduct>) => {
   const r: Record<string, unknown> = {};
@@ -40,6 +44,10 @@ const productCols = (p: Partial<AdminProduct>) => {
   if (p.stock !== undefined) r.stock = p.stock;
   if (p.qty !== undefined) r.qty = p.qty;
   if (p.specs !== undefined) r.specs = p.specs;
+  if (p.nameEn !== undefined) r.name_en = p.nameEn;
+  if (p.description !== undefined) r.description = p.description;
+  if (p.descriptionEn !== undefined) r.description_en = p.descriptionEn;
+  if (p.specsEn !== undefined) r.specs_en = p.specsEn;
   return r;
 };
 export async function fetchProducts(): Promise<AdminProduct[]> {

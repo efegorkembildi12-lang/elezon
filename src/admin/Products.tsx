@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useStore } from './store';
 import {
   afmt, AdmIcon, PageHead, Toolbar, SearchBox, Th, EmptyState,
-  Drawer, ConfirmModal, Field, TextInput, SelectInput,
+  Drawer, ConfirmModal, Field, TextInput, TextArea, SelectInput,
   StockBadge, useToast,
   sortRows,
 } from './shared';
@@ -21,6 +21,7 @@ type StockFilter = 'all' | 'in' | 'order';
 
 const BLANK: Omit<AdminProduct, 'id'> = {
   name: '', cat: '', brand: '', type: '', article: '', price: null, stock: 'in', qty: 0, specs: [],
+  nameEn: '', description: '', descriptionEn: '', specsEn: [],
 };
 
 function ProductForm({
@@ -36,7 +37,7 @@ function ProductForm({
 }) {
   const [form, setForm] = useState<Omit<AdminProduct, 'id'>>(
     product
-      ? { name: product.name, cat: product.cat, brand: product.brand, type: product.type, article: product.article, price: product.price, stock: product.stock, qty: product.qty, specs: product.specs }
+      ? { name: product.name, cat: product.cat, brand: product.brand, type: product.type, article: product.article, price: product.price, stock: product.stock, qty: product.qty, specs: product.specs, nameEn: product.nameEn ?? '', description: product.description ?? '', descriptionEn: product.descriptionEn ?? '', specsEn: product.specsEn ?? [] }
       : { ...BLANK },
   );
 
@@ -51,6 +52,15 @@ function ProductForm({
     }));
   const removeSpec = (i: number) =>
     setForm((p) => ({ ...p, specs: p.specs.filter((_, si) => si !== i) }));
+
+  const addSpecEn = () => setForm((p) => ({ ...p, specsEn: [...(p.specsEn ?? []), ['', '']] }));
+  const setSpecEn = (i: number, j: 0 | 1, v: string) =>
+    setForm((p) => ({
+      ...p,
+      specsEn: (p.specsEn ?? []).map((s, si) => si === i ? (j === 0 ? [v, s[1]] : [s[0], v]) as [string, string] : s),
+    }));
+  const removeSpecEn = (i: number) =>
+    setForm((p) => ({ ...p, specsEn: (p.specsEn ?? []).filter((_, si) => si !== i) }));
 
   return (
     <Drawer
@@ -72,6 +82,13 @@ function ProductForm({
             value={form.name}
             onChange={(e) => set('name', e.target.value)}
             placeholder={t('Наименование')}
+          />
+        </Field>
+        <Field label={t('Наименование (EN)')}>
+          <TextInput
+            value={form.nameEn ?? ''}
+            onChange={(e) => set('nameEn', e.target.value)}
+            placeholder="Product name (English)"
           />
         </Field>
         <div className="row" style={{ gap: 14 }}>
@@ -133,6 +150,14 @@ function ProductForm({
           </Field>
         )}
 
+        <div className="adm-form-section" style={{ marginTop: 18 }}>{t('Описание')}</div>
+        <Field label={t('Описание (RU)')}>
+          <TextArea rows={4} value={form.description ?? ''} onChange={(e) => set('description', e.target.value)} placeholder={t('Описание')} />
+        </Field>
+        <Field label={t('Описание (EN)')}>
+          <TextArea rows={4} value={form.descriptionEn ?? ''} onChange={(e) => set('descriptionEn', e.target.value)} placeholder="Description (English)" />
+        </Field>
+
         <div className="adm-form-section" style={{ marginTop: 18 }}>{t('Характеристики')}</div>
         {form.specs.map((s, i) => (
           <div key={i} className="row" style={{ gap: 10, marginBottom: 8 }}>
@@ -144,6 +169,20 @@ function ProductForm({
           </div>
         ))}
         <button className="btn btn-ghost btn-sm" type="button" onClick={addSpec} style={{ alignSelf: 'flex-start', marginBottom: 4 }}>
+          <AdmIcon.plus width={14} height={14} />{t('Добавить характеристику')}
+        </button>
+
+        <div className="adm-form-section" style={{ marginTop: 18 }}>{t('Характеристики (EN)')}</div>
+        {(form.specsEn ?? []).map((s, i) => (
+          <div key={i} className="row" style={{ gap: 10, marginBottom: 8 }}>
+            <TextInput value={s[0]} onChange={(e) => setSpecEn(i, 0, e.target.value)} placeholder="Parameter" style={{ flex: 1 }} />
+            <TextInput value={s[1]} onChange={(e) => setSpecEn(i, 1, e.target.value)} placeholder="Value" style={{ flex: 1 }} />
+            <button className="adm-mini-btn danger" type="button" onClick={() => removeSpecEn(i)} title={t('Удалить')}>
+              <AdmIcon.x width={14} height={14} />
+            </button>
+          </div>
+        ))}
+        <button className="btn btn-ghost btn-sm" type="button" onClick={addSpecEn} style={{ alignSelf: 'flex-start', marginBottom: 4 }}>
           <AdmIcon.plus width={14} height={14} />{t('Добавить характеристику')}
         </button>
       </div>

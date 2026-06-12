@@ -6,12 +6,13 @@ import { StockNotifyForm } from './StockNotifyForm';
 import { fmt } from '../lib/format';
 import { useGo } from '../lib/useGo';
 import { useI18n } from '../i18n/I18nContext';
+import { productName } from '../lib/localize';
 import { useRequestList } from '../store/RequestListContext';
 import type { Product } from '../types';
 
 export function ProductCard({ p }: { p: Product }) {
   const go = useGo();
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const rl = useRequestList();
   const [hover, setHover] = useState(false);
   const [notify, setNotify] = useState(false);
@@ -37,7 +38,7 @@ export function ProductCard({ p }: { p: Product }) {
       }}
     >
       <div style={{ position: 'relative', aspectRatio: '1 / 1', borderBottom: '1px solid var(--line)', overflow: 'hidden', background: 'var(--surface-2)' }}>
-        <img src={`${import.meta.env.BASE_URL}images/prod-${p.cat}.png`} alt={t(p.name)} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+        <img src={`${import.meta.env.BASE_URL}images/prod-${p.cat}.png`} alt={productName(p, lang)} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
         <span className="chip" style={{ position: 'absolute', top: 12, left: 12, background: 'var(--surface)' }}>{p.brand}</span>
         <span className={'chip ' + (p.stock === 'in' ? 'stock' : 'order')} style={{ position: 'absolute', top: 12, right: 12 }}>
           <span className="dot" /> {p.stock === 'in' ? t('в наличии') : t('под заказ')}
@@ -45,7 +46,7 @@ export function ProductCard({ p }: { p: Product }) {
       </div>
       <div className="col" style={{ padding: '16px 17px 18px', gap: 10, flex: 1 }}>
         <span className="mono" style={{ fontSize: 11, color: 'var(--t-faint)' }}>{t(p.type)} · {p.article}</span>
-        <span style={{ fontWeight: 600, fontSize: 15, color: 'var(--t-strong)', lineHeight: 1.25, flex: 1 }}>{t(p.name)}</span>
+        <span style={{ fontWeight: 600, fontSize: 15, color: 'var(--t-strong)', lineHeight: 1.25, flex: 1 }}>{productName(p, lang)}</span>
         <div className="row" style={{ justifyContent: 'space-between', marginTop: 4 }}>
           <span style={{ fontWeight: 700, fontSize: 17, color: 'var(--t-strong)', fontFamily: 'var(--f-mono)' }}>
             {p.price != null ? (

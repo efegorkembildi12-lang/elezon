@@ -9,6 +9,7 @@ import { fmt } from '../lib/format';
 import { useGo } from '../lib/useGo';
 import { matchProduct } from '../lib/search';
 import { useI18n } from '../i18n/I18nContext';
+import { productName } from '../lib/localize';
 import { useCatalog } from '../store/CatalogProvider';
 
 function FilterChip({ label, count, active, onClick, dot }: { label: string; count?: number; active: boolean; onClick: () => void; dot?: boolean }) {
@@ -30,7 +31,7 @@ function FilterChip({ label, count, active, onClick, dot }: { label: string; cou
 
 export function Catalog() {
   const go = useGo();
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const D = useCatalog();
   const { categoryId } = useParams<{ categoryId?: string }>();
   const category = categoryId ? D.categories.find((c) => c.id === categoryId) ?? null : null;
@@ -69,8 +70,8 @@ export function Catalog() {
   );
   if (sort === 'price-asc') items = [...items].sort((a, b) => (a.price ?? 9e9) - (b.price ?? 9e9));
   if (sort === 'price-desc') items = [...items].sort((a, b) => (b.price ?? -1) - (a.price ?? -1));
-  if (sort === 'name-asc') items = [...items].sort((a, b) => t(a.name).localeCompare(t(b.name), 'ru'));
-  if (sort === 'name-desc') items = [...items].sort((a, b) => t(b.name).localeCompare(t(a.name), 'ru'));
+  if (sort === 'name-asc') items = [...items].sort((a, b) => productName(a, lang).localeCompare(productName(b, lang), lang));
+  if (sort === 'name-desc') items = [...items].sort((a, b) => productName(b, lang).localeCompare(productName(a, lang), lang));
 
   const activeBrands = [...new Set(D.products.filter((p) => cats.length === 0 || cats.includes(p.cat)).map((p) => p.brand))];
   const title = category ? category.name : 'Каталог';
@@ -178,7 +179,7 @@ export function Catalog() {
                   <span className="ph" style={{ width: 64, height: 64, borderRadius: 8, flex: '0 0 auto', overflow: 'hidden' }}><img src={`${import.meta.env.BASE_URL}images/prod-${p.cat}.png`} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /></span>
                   <span className="col" style={{ gap: 4, flex: 1, minWidth: 0 }}>
                     <span className="mono" style={{ fontSize: 11, color: 'var(--t-faint)' }}>{p.brand} · {p.article}</span>
-                    <span style={{ fontWeight: 600, fontSize: 15, color: 'var(--t-strong)' }}>{t(p.name)}</span>
+                    <span style={{ fontWeight: 600, fontSize: 15, color: 'var(--t-strong)' }}>{productName(p, lang)}</span>
                   </span>
                   <span className={'chip ' + (p.stock === 'in' ? 'stock' : 'order')}><span className="dot" />{p.stock === 'in' ? `${p.qty} ${t('шт')}` : t('под заказ')}</span>
                   <span style={{ fontFamily: 'var(--f-mono)', fontWeight: 700, fontSize: 16, color: 'var(--t-strong)', minWidth: 120, textAlign: 'right' }}>{p.price != null ? `${fmt(p.price)} ₽` : <span style={{ fontSize: 13, color: 'var(--t-muted)', fontWeight: 600, fontFamily: 'var(--f-sans)' }}>{t('по запросу')}</span>}</span>

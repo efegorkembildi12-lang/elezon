@@ -11,10 +11,11 @@ import { useGo } from '../lib/useGo';
 import { useI18n } from '../i18n/I18nContext';
 import { useRequestList } from '../store/RequestListContext';
 import { useCatalog } from '../store/CatalogProvider';
+import { productName, productDesc, productSpecs } from '../lib/localize';
 import type { Product as ProductType } from '../types';
 
 function QuoteForm({ p, onClose }: { p: ProductType | null; onClose: () => void }) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const [sent, setSent] = useState(false);
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 100, display: 'grid', placeItems: 'center', padding: 20, background: 'oklch(0.17 0.012 256 / 0.55)', backdropFilter: 'blur(4px)' }} onClick={onClose}>
@@ -35,7 +36,7 @@ function QuoteForm({ p, onClose }: { p: ProductType | null; onClose: () => void 
             {p && (
               <div className="row" style={{ gap: 10, padding: 12, background: 'var(--surface-2)', borderRadius: 'var(--r-sm)' }}>
                 <span className="mono" style={{ fontSize: 11, color: 'var(--t-faint)' }}>{p.article}</span>
-                <span style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--t-strong)' }}>{t(p.name)}</span>
+                <span style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--t-strong)' }}>{productName(p, lang)}</span>
               </div>
             )}
             <div className="col" style={{ gap: 12 }}>
@@ -58,7 +59,7 @@ function QuoteForm({ p, onClose }: { p: ProductType | null; onClose: () => void 
 
 export function Product() {
   const go = useGo();
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const rl = useRequestList();
   const { products, categories, loading } = useCatalog();
   const { productId } = useParams<{ productId?: string }>();
@@ -95,7 +96,7 @@ export function Product() {
         {/* gallery */}
         <div className="col" style={{ gap: 14 }}>
           <div style={{ position: 'relative', width: '100%', aspectRatio: '1 / 1', border: '1px solid var(--line)', borderRadius: 'var(--r-lg)', overflow: 'hidden', background: 'var(--surface-2)' }}>
-            <img src={`${import.meta.env.BASE_URL}images/prod-${p.cat}.png`} alt={t(p.name)} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+            <img src={`${import.meta.env.BASE_URL}images/prod-${p.cat}.png`} alt={productName(p, lang)} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
             <span className="chip" style={{ position: 'absolute', top: 16, left: 16, background: 'var(--surface)', zIndex: 2 }}>{p.brand}</span>
           </div>
           <div className="row" style={{ gap: 12 }}>
@@ -111,7 +112,7 @@ export function Product() {
             <span className={'chip ' + (p.stock === 'in' ? 'stock' : 'order')}><span className="dot" />{p.stock === 'in' ? t('в наличии') : t('под заказ')}</span>
             <span className="mono" style={{ fontSize: 12, color: 'var(--t-faint)' }}>{t('Артикул:')} {p.article}</span>
           </div>
-          <h1 className="display" style={{ fontSize: 34, lineHeight: 1.1 }}>{t(p.name)}</h1>
+          <h1 className="display" style={{ fontSize: 34, lineHeight: 1.1 }}>{productName(p, lang)}</h1>
           <div className="row" style={{ gap: 18, fontSize: 13.5, color: 'var(--t-muted)' }}>
             <span>{t('Бренд:')} <b style={{ color: 'var(--t-strong)' }}>{p.brand}</b></span>
             <span>{t('Тип:')} <b style={{ color: 'var(--t-strong)' }}>{t(p.type)}</b></span>
@@ -164,7 +165,7 @@ export function Product() {
           <div>
             {tab === 'specs' && (
               <div className="col" style={{ border: '1px solid var(--line)', borderRadius: 'var(--r-md)', overflow: 'hidden' }}>
-                {p.specs.map(([k, v], i) => (
+                {productSpecs(p, lang).map(([k, v], i) => (
                   <div key={i} className="row" style={{ justifyContent: 'space-between', padding: '14px 18px', background: i % 2 ? 'var(--surface)' : 'var(--surface-2)', fontSize: 14 }}>
                     <span style={{ color: 'var(--t-muted)' }}>{t(k)}</span>
                     <span className="mono" style={{ fontWeight: 600, color: 'var(--t-strong)' }}>{t(v)}</span>
@@ -172,7 +173,12 @@ export function Product() {
                 ))}
               </div>
             )}
-            {tab === 'desc' && <p style={{ margin: 0, fontSize: 15.5, lineHeight: 1.7, color: 'var(--t-body)' }}>{t(p.name)} {t('производства')} {p.brand} — {t('оригинальное оборудование для применения в инженерных системах зданий. Поставляется со склада в Москве с полным пакетом документов для юридических лиц. По запросу подберём аналоги и рассчитаем стоимость для проектных объёмов.')}</p>}
+            {tab === 'desc' && (
+              <p style={{ margin: 0, fontSize: 15.5, lineHeight: 1.7, color: 'var(--t-body)', whiteSpace: 'pre-line' }}>
+                {productDesc(p, lang)
+                  || `${productName(p, lang)} ${t('производства')} ${p.brand} — ${t('оригинальное оборудование для применения в инженерных системах зданий. Поставляется со склада в Москве с полным пакетом документов для юридических лиц. По запросу подберём аналоги и рассчитаем стоимость для проектных объёмов.')}`}
+              </p>
+            )}
             {tab === 'delivery' && (
               <div className="col" style={{ gap: 14, fontSize: 15, lineHeight: 1.6, color: 'var(--t-body)' }}>
                 <p style={{ margin: 0 }}>{t('Отгрузка со склада в Москве в течение 24 часов после подтверждения заказа. Доставка по России транспортными компаниями, самовывоз со склада.')}</p>

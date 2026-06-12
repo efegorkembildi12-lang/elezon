@@ -23,6 +23,10 @@ export interface Product {
   stock: Stock;
   qty: number; // units in Moscow stock
   specs: [string, string][];
+  nameEn?: string; // English name (falls back to `name`)
+  description?: string; // RU description
+  descriptionEn?: string; // EN description
+  specsEn?: [string, string][]; // EN specs (falls back to `specs`)
 }
 
 export interface Stat {

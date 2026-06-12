@@ -16,6 +16,10 @@ export interface AdminProduct {
   stock: 'in' | 'order';
   qty: number;
   specs: [string, string][];
+  nameEn?: string; // English name
+  description?: string; // RU description
+  descriptionEn?: string; // EN description
+  specsEn?: [string, string][]; // EN specs
   _i?: number;
 }
 
