@@ -16,6 +16,7 @@ export const I18N_EN: Record<string, string> = {
   '© 2026 ELEZON · Все права защищены': '© 2026 ELEZON · All rights reserved',
   'Политика конфиденциальности': 'Privacy policy',
   'Публичная оферта': 'Terms of sale',
+  'Пользовательское соглашение': 'Terms of use',
   '121087, Москва,': '121087, Moscow,',
   'ул. Большая Филёвская, 4': 'Bolshaya Filyovskaya St., 4',
   'Оригинальные бренды': 'Original brands',

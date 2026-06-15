@@ -12,13 +12,16 @@ import { RequestList } from './pages/RequestList';
 import { Company } from './pages/Company';
 import { Delivery } from './pages/Delivery';
 import { Contacts } from './pages/Contacts';
-import { Privacy } from './pages/Privacy';
+import { Legal } from './pages/Legal';
+import { CookieConsent } from './components/CookieConsent';
 
 function ScrollToTop() {
-  const { pathname } = useLocation();
+  const { pathname, hash } = useLocation();
   useEffect(() => {
+    // Let in-page anchor links (e.g. /legal#privacy) handle their own scroll.
+    if (hash) return;
     window.scrollTo({ top: 0, behavior: 'auto' });
-  }, [pathname]);
+  }, [pathname, hash]);
   return null;
 }
 
@@ -37,11 +40,13 @@ export default function App() {
           <Route path="/company" element={<Company />} />
           <Route path="/delivery" element={<Delivery />} />
           <Route path="/contacts" element={<Contacts />} />
-          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/legal" element={<Legal />} />
+          <Route path="/privacy" element={<Navigate to="/legal#privacy" replace />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
       <Footer />
+      <CookieConsent />
     </>
   );
 }

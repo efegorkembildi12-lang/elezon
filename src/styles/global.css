@@ -221,6 +221,44 @@ label.lbl { font-size: 13px; font-weight: 600; color: var(--t-body); display: bl
 .rise { animation: riseIn .55s cubic-bezier(.2,.7,.2,1) both; }
 @media (prefers-reduced-motion: reduce) { .rise { animation: none; } }
 
+/* ---------- Legal page: table of contents ---------- */
+.legal-toc {
+  margin-top: 28px;
+  padding: 22px 24px;
+  background: var(--surface);
+}
+.legal-toc a:hover { color: var(--accent); }
+
+/* ---------- Cookie consent bar ---------- */
+.cookie-bar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 90;
+  background: oklch(0.17 0.012 256 / 0.94);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--ink-line);
+  box-shadow: var(--sh-lg);
+  color: var(--t-on-dark-muted);
+}
+.cookie-bar__inner {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 22px; padding-top: 16px; padding-bottom: 16px;
+}
+.cookie-bar__text {
+  margin: 0; font-size: 13.5px; line-height: 1.55; max-width: 760px;
+  color: var(--t-on-dark-muted);
+}
+.cookie-bar__link { color: var(--accent); white-space: nowrap; }
+.cookie-bar__link:hover { text-decoration: underline; }
+.cookie-bar__actions { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+@media (prefers-reduced-motion: no-preference) {
+  .cookie-bar { animation: cookieRise .34s cubic-bezier(.2,.7,.2,1) both; }
+  @keyframes cookieRise { from { transform: translateY(100%); } to { transform: none; } }
+}
+@media (max-width: 640px) {
+  .cookie-bar__inner { flex-direction: column; align-items: stretch; gap: 14px; }
+  .cookie-bar__actions { width: 100%; }
+  .cookie-bar__actions .btn { flex: 1; justify-content: center; }
+}
+
 /* ---------- Print: request-list spec sheet ---------- */
 .print-only { display: none; }
 @media print {

@@ -50,7 +50,7 @@ export function Footer() {
           <span className="mono">{t('© 2026 ELEZON · Все права защищены')}</span>
           <span className="row" style={{ gap: 18 }}>
             <a href="#" onClick={(e) => { e.preventDefault(); go('privacy'); }} style={{ color: 'inherit' }}>{t('Политика конфиденциальности')}</a>
-            <a href="#" style={{ color: 'inherit' }}>{t('Публичная оферта')}</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); go('terms'); }} style={{ color: 'inherit' }}>{t('Пользовательское соглашение')}</a>
           </span>
         </div>
       </div>
