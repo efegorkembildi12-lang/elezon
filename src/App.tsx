@@ -1,8 +1,12 @@
-/* ELEZON — storefront shell: header, routed pages, footer.
-   Routing replaces the prototype's state-based go(route, arg) with real URLs (better for SEO). */
+/* ELEZON — storefront route table for vite-react-ssg.
+   A layout route (header / footer / cookie bar) wraps the page routes. Dynamic
+   routes declare getStaticPaths so every product and category is prerendered to
+   real HTML (crawler- and AI-visible). Routing replaces the prototype's
+   state-based go(route, arg) with real URLs (better for SEO). */
 
 import { useEffect } from 'react';
-import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
+import { Outlet, useLocation, Navigate } from 'react-router-dom';
+import { ClientOnly, type RouteRecord } from 'vite-react-ssg';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { Home } from './pages/Home';
@@ -14,6 +18,10 @@ import { Delivery } from './pages/Delivery';
 import { Contacts } from './pages/Contacts';
 import { Legal } from './pages/Legal';
 import { CookieConsent } from './components/CookieConsent';
+import { I18nProvider } from './i18n/I18nContext';
+import { CatalogProvider } from './store/CatalogProvider';
+import { RequestListProvider } from './store/RequestListContext';
+import { loadBuildData } from './lib/ssg/buildData';
 
 function ScrollToTop() {
   const { pathname, hash } = useLocation();
@@ -25,28 +33,54 @@ function ScrollToTop() {
   return null;
 }
 
-export default function App() {
+function Layout() {
+  // Providers live in the root layout route so context spans the header, footer
+  // and every page — and so they render at build time during SSG.
   return (
-    <>
-      <ScrollToTop />
-      <Header />
-      <main style={{ flex: 1 }}>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/catalog" element={<Catalog />} />
-          <Route path="/catalog/:categoryId" element={<Catalog />} />
-          <Route path="/product/:productId" element={<Product />} />
-          <Route path="/request" element={<RequestList />} />
-          <Route path="/company" element={<Company />} />
-          <Route path="/delivery" element={<Delivery />} />
-          <Route path="/contacts" element={<Contacts />} />
-          <Route path="/legal" element={<Legal />} />
-          <Route path="/privacy" element={<Navigate to="/legal#privacy" replace />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </main>
-      <Footer />
-      <CookieConsent />
-    </>
+    <I18nProvider>
+      <CatalogProvider>
+        <RequestListProvider>
+          <ScrollToTop />
+          <Header />
+          <main style={{ flex: 1 }}>
+            <Outlet />
+          </main>
+          <Footer />
+          {/* Cookie bar reads localStorage and has no SEO value — client only. */}
+          <ClientOnly>{() => <CookieConsent />}</ClientOnly>
+        </RequestListProvider>
+      </CatalogProvider>
+    </I18nProvider>
   );
 }
+
+async function productStaticPaths(): Promise<string[]> {
+  const { products } = await loadBuildData();
+  return products.map((p) => `/product/${p.id}`);
+}
+
+async function categoryStaticPaths(): Promise<string[]> {
+  const { categories } = await loadBuildData();
+  return categories.map((c) => `/catalog/${c.id}`);
+}
+
+export const routes: RouteRecord[] = [
+  {
+    path: '/',
+    element: <Layout />,
+    children: [
+      { index: true, element: <Home /> },
+      { path: 'catalog', element: <Catalog /> },
+      { path: 'catalog/:categoryId', element: <Catalog />, getStaticPaths: categoryStaticPaths },
+      { path: 'product/:productId', element: <Product />, getStaticPaths: productStaticPaths },
+      // Private quote list (localStorage cart) — no SEO value, client only.
+      { path: 'request', element: <ClientOnly>{() => <RequestList />}</ClientOnly> },
+      { path: 'company', element: <Company /> },
+      { path: 'delivery', element: <Delivery /> },
+      { path: 'contacts', element: <Contacts /> },
+      { path: 'legal', element: <Legal /> },
+      { path: 'privacy', element: <Navigate to="/legal#privacy" replace /> },
+      { path: '*', element: <Navigate to="/" replace /> },
+    ],
+  },
+];

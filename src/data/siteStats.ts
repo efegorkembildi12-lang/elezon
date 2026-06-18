@@ -45,6 +45,7 @@ function normalize(x: unknown): SiteStat | null {
 
 /** Read the persisted stats, falling back to the catalog defaults. */
 export function readStats(): SiteStat[] {
+  if (typeof localStorage === 'undefined') return defaultStats();
   try {
     const raw = localStorage.getItem(SITE_STATS_KEY);
     if (raw) {

@@ -6,10 +6,12 @@ import { QuoteCTA } from '../components/QuoteCTA';
 import { useI18n } from '../i18n/I18nContext';
 import { useSiteStats } from '../lib/useSiteStats';
 import { useCatalog } from '../store/CatalogProvider';
+import { Seo } from '../components/Seo';
+import { PageState } from '../lib/ssg/pageState';
 
 export function Company() {
   const { t } = useI18n();
-  const { brands } = useCatalog();
+  const { brands, categories, stats: rawStats } = useCatalog();
   const stats = useSiteStats();
   const values = [
     { I: Icon.shield, t: 'Только оригинал', d: 'Поставляем оборудование официальных производителей с гарантией и документами.' },
@@ -19,6 +21,11 @@ export function Company() {
   ];
   return (
     <div className="rise">
+      <Seo
+        title="О компании"
+        description="ELEZON — поставщик оборудования для автоматизации зданий, КИП, низковольтных систем и KNX в Москве. Инженерная экспертиза, оригинальные бренды, склад и отгрузка 24 ч для юридических лиц."
+      />
+      <PageState data={{ products: [], categories, brands, stats: rawStats }} />
       <PageHero
         eyebrow="О компании"
         title="Инженерная поставка электротехнического оборудования"

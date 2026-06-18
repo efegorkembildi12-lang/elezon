@@ -12,6 +12,8 @@ import { useI18n } from '../i18n/I18nContext';
 import { useRequestList } from '../store/RequestListContext';
 import { useCatalog } from '../store/CatalogProvider';
 import { productName, productDesc, productSpecs, productImage, docUrl } from '../lib/localize';
+import { Seo } from '../components/Seo';
+import { PageState } from '../lib/ssg/pageState';
 import type { Product as ProductType } from '../types';
 
 function QuoteForm({ p, onClose }: { p: ProductType | null; onClose: () => void }) {
@@ -61,7 +63,7 @@ export function Product() {
   const go = useGo();
   const { t, lang } = useI18n();
   const rl = useRequestList();
-  const { products, categories, loading } = useCatalog();
+  const { products, categories, brands, stats, loading } = useCatalog();
   const { productId } = useParams<{ productId?: string }>();
   const [tab, setTab] = useState('specs');
   const [quote, setQuote] = useState(false);
@@ -85,6 +87,11 @@ export function Product() {
 
   return (
     <div className="rise">
+      <Seo
+        title={`${productName(p, lang)} — ${p.brand}`}
+        description={`${productName(p, lang)}, ${p.brand} (${p.article}). Оригинальное оборудование со склада в Москве, отгрузка 24 ч, для юридических лиц.`}
+      />
+      <PageState data={{ products: [p, ...related], categories, brands, stats }} />
       <Breadcrumbs items={[
         { label: 'Главная', go: () => go('home') },
         { label: 'Каталог', go: () => go('catalog') },

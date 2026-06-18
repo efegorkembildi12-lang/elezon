@@ -1,13 +1,20 @@
-/* ELEZON — storefront catalog source. Fetches products/categories/brands/stats
-   from Supabase once on mount and provides them via useCatalog(). Initial state
-   is the bundled demo data (ELEZON_DATA) so there's no empty flash and the app
-   works even before Supabase is configured. */
+/* ELEZON — storefront catalog source.
 
-import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react';
+   Seeds its initial state so prerendered HTML and the first client render match:
+   1. Client, prerendered page: the per-page <script type="application/json"> island.
+   2. Build (SSG render): the full catalogue fetched once in the ViteReactSSG setup.
+   3. Fallback (SPA-fallback / Supabase unconfigured): the bundled demo data.
+
+   After hydration it refetches the full, current catalogue from Supabase so
+   client-side navigation has every product (the island is only this page's slice). */
+
+import { createContext, useContext, useEffect, useState, useCallback, useMemo, type ReactNode } from 'react';
 import { fetchCatalog } from '../lib/db/catalog';
 import { fetchStats } from '../lib/db/stats';
 import { ELEZON_DATA } from '../data/catalog';
 import { defaultStats, type SiteStat } from '../data/siteStats';
+import { getBuildData } from '../lib/ssg/buildData';
+import { readPageState, type PageStateData } from '../lib/ssg/pageState';
 import type { Product, Category } from '../types';
 
 interface CatalogValue {
@@ -22,12 +29,23 @@ interface CatalogValue {
 
 const CatalogContext = createContext<CatalogValue | null>(null);
 
+/** Seed order: client island → build cache → bundled demo. */
+function seedData(): PageStateData {
+  const embedded = readPageState();
+  if (embedded) return embedded;
+  const build = getBuildData();
+  if (build) return build;
+  return {
+    products: ELEZON_DATA.products,
+    categories: ELEZON_DATA.categories,
+    brands: ELEZON_DATA.brands,
+    stats: defaultStats(),
+  };
+}
+
 export function CatalogProvider({ children }: { children: ReactNode }) {
-  const [products, setProducts] = useState<Product[]>(ELEZON_DATA.products);
-  const [categories, setCategories] = useState<Category[]>(ELEZON_DATA.categories);
-  const [brands, setBrands] = useState<string[]>(ELEZON_DATA.brands);
-  const [stats, setStats] = useState<SiteStat[]>(() => defaultStats());
-  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState<PageStateData>(seedData);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(() => {
@@ -36,10 +54,7 @@ export function CatalogProvider({ children }: { children: ReactNode }) {
     Promise.all([fetchCatalog(), fetchStats()])
       .then(([cat, st]) => {
         if (cancelled) return;
-        setProducts(cat.products);
-        setCategories(cat.categories);
-        setBrands(cat.brands);
-        setStats(st);
+        setData({ ...cat, stats: st });
         setError(null);
       })
       .catch((e: unknown) => {
@@ -49,13 +64,23 @@ export function CatalogProvider({ children }: { children: ReactNode }) {
     return () => { cancelled = true; };
   }, []);
 
+  // Effects run on the client only — refresh to the full catalogue after hydration.
   useEffect(() => load(), [load]);
 
-  return (
-    <CatalogContext.Provider value={{ products, categories, brands, stats, loading, error, refetch: load }}>
-      {children}
-    </CatalogContext.Provider>
+  const value = useMemo<CatalogValue>(
+    () => ({
+      products: data.products,
+      categories: data.categories,
+      brands: data.brands,
+      stats: data.stats,
+      loading,
+      error,
+      refetch: load,
+    }),
+    [data, loading, error, load],
   );
+
+  return <CatalogContext.Provider value={value}>{children}</CatalogContext.Provider>;
 }
 
 export function useCatalog(): CatalogValue {

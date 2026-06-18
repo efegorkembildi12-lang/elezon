@@ -1,28 +1,19 @@
-/* ELEZON — storefront entry. */
+/* ELEZON — storefront entry (vite-react-ssg).
+   Static-generates every route to real HTML at build time and hydrates on the
+   client. Providers live in the root layout route (see App.tsx). */
 
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
-import App from './App';
-import { I18nProvider } from './i18n/I18nContext';
-import { RequestListProvider } from './store/RequestListContext';
-import { CatalogProvider } from './store/CatalogProvider';
+import { ViteReactSSG } from 'vite-react-ssg';
+import { routes } from './App';
+import { loadBuildData } from './lib/ssg/buildData';
 import './styles/tokens.css';
 import './styles/global.css';
 
-const rootEl = document.getElementById('root');
-if (!rootEl) throw new Error('Root element #root not found');
-
-createRoot(rootEl).render(
-  <StrictMode>
-    <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, '')}>
-      <I18nProvider>
-        <CatalogProvider>
-          <RequestListProvider>
-            <App />
-          </RequestListProvider>
-        </CatalogProvider>
-      </I18nProvider>
-    </BrowserRouter>
-  </StrictMode>,
+export const createRoot = ViteReactSSG(
+  { routes, basename: import.meta.env.BASE_URL.replace(/\/$/, '') },
+  async ({ isClient }) => {
+    // Build only: fetch the full catalogue once before rendering so prerendered
+    // HTML contains real content (CatalogProvider reads it synchronously via
+    // getBuildData). getStaticPaths already warms the same cache.
+    if (!isClient) await loadBuildData();
+  },
 );

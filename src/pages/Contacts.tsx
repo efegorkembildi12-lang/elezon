@@ -4,6 +4,9 @@ import { useState } from 'react';
 import { Icon, type IconComponent } from '../components/Icon';
 import { PageHero } from '../components/PageHero';
 import { useI18n } from '../i18n/I18nContext';
+import { useCatalog } from '../store/CatalogProvider';
+import { Seo } from '../components/Seo';
+import { PageState } from '../lib/ssg/pageState';
 
 interface ContactItem {
   I: IconComponent;
@@ -14,6 +17,7 @@ interface ContactItem {
 
 export function Contacts() {
   const { t } = useI18n();
+  const { categories, brands, stats } = useCatalog();
   const [sent, setSent] = useState(false);
 
   const items: ContactItem[] = [
@@ -25,6 +29,11 @@ export function Contacts() {
 
   return (
     <div className="rise">
+      <Seo
+        title="Контакты"
+        description="Контакты ELEZON: +7 (495) 147-47-61, info@elezon.ru, склад 121087, Москва, ул. Большая Филёвская, 4. Запрос цены и спецификации для юридических лиц."
+      />
+      <PageState data={{ products: [], categories, brands, stats }} />
       <PageHero eyebrow="Контакты" title="Свяжитесь с нами" sub="Отправьте запрос или спецификацию — рассчитаем цену, сроки и подберём аналоги." />
       <section className="section">
         <div className="wrap contacts-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1.1fr', gap: 48 }}>

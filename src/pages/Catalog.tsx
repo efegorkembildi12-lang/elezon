@@ -11,6 +11,8 @@ import { matchProduct } from '../lib/search';
 import { useI18n } from '../i18n/I18nContext';
 import { productName } from '../lib/localize';
 import { useCatalog } from '../store/CatalogProvider';
+import { Seo } from '../components/Seo';
+import { PageState } from '../lib/ssg/pageState';
 
 function FilterChip({ label, count, active, onClick, dot }: { label: string; count?: number; active: boolean; onClick: () => void; dot?: boolean }) {
   const style: CSSProperties = {
@@ -83,8 +85,19 @@ export function Catalog() {
 
   const hasFilters = cats.length > 0 || brands.length > 0 || stockOnly || q.length > 0;
 
+  const pageProducts = category ? D.products.filter((p) => p.cat === category.id) : D.products;
+
   return (
     <div className="rise">
+      <Seo
+        title={category ? category.name : 'Каталог оборудования'}
+        description={
+          category
+            ? category.desc
+            : 'Каталог оборудования для автоматизации зданий, КИП, низковольтных систем и KNX. Оригинальные бренды, склад в Москве, отгрузка 24 ч, для юридических лиц.'
+        }
+      />
+      <PageState data={{ products: pageProducts, categories: D.categories, brands: D.brands, stats: D.stats }} />
       <Breadcrumbs items={crumbs} />
       <div className="wrap" style={{ padding: '22px 32px 12px' }}>
         <div className="row" style={{ justifyContent: 'space-between', alignItems: 'flex-end', gap: 24, flexWrap: 'wrap' }}>

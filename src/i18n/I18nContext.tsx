@@ -15,6 +15,8 @@ const I18nContext = createContext<I18nValue | null>(null);
 const STORAGE_KEY = 'elezon_lang';
 
 function readInitialLang(): Lang {
+  // Guard for SSG: localStorage doesn't exist during build-time rendering.
+  if (typeof localStorage === 'undefined') return 'ru';
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
     return saved === 'en' ? 'en' : 'ru';
@@ -24,7 +26,13 @@ function readInitialLang(): Lang {
 }
 
 export function I18nProvider({ children }: { children: ReactNode }) {
-  const [lang, setLang] = useState<Lang>(readInitialLang);
+  // Start at the SSR default ('ru') so the first client render matches the
+  // prerendered HTML, then adopt the stored choice after hydration.
+  const [lang, setLang] = useState<Lang>('ru');
+
+  useEffect(() => {
+    setLang(readInitialLang());
+  }, []);
 
   useEffect(() => {
     try {
@@ -32,7 +40,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     } catch {
       /* ignore quota / privacy-mode errors */
     }
-    document.documentElement.lang = lang;
+    if (typeof document !== 'undefined') document.documentElement.lang = lang;
   }, [lang]);
 
   const t = useCallback(

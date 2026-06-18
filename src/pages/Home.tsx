@@ -9,6 +9,9 @@ import { useSiteStats } from '../lib/useSiteStats';
 import { useI18n } from '../i18n/I18nContext';
 import { useCatalog } from '../store/CatalogProvider';
 import { categoryArt } from '../components/CategoryArt';
+import { Seo } from '../components/Seo';
+import { PageState } from '../lib/ssg/pageState';
+import { featuredRail } from '../lib/featured';
 
 function BrandStrip({ dark }: { dark?: boolean }) {
   const { t } = useI18n();
@@ -60,11 +63,7 @@ function ProductRail({ title, eyebrow }: { title: string; eyebrow: string }) {
   const go = useGo();
   const { t } = useI18n();
   const { products } = useCatalog();
-  // Prefer admin-picked featured products; fall back to in-stock, then to any —
-  // most of the real catalogue is "on order", so an in-stock-only rail is empty.
-  const featured = products.filter((p) => p.featured);
-  const inStock = products.filter((p) => p.stock === 'in');
-  const items = (featured.length ? featured : inStock.length ? inStock : products).slice(0, 8);
+  const items = featuredRail(products);
   return (
     <section className="section" style={{ paddingTop: 20 }}>
       <div className="wrap">
@@ -86,10 +85,12 @@ function ProductRail({ title, eyebrow }: { title: string; eyebrow: string }) {
 export function Home() {
   const go = useGo();
   const { t } = useI18n();
-  const { categories } = useCatalog();
+  const { products, categories, brands, stats: rawStats } = useCatalog();
   const stats = useSiteStats();
   return (
     <div className="rise">
+      <Seo />
+      <PageState data={{ products: featuredRail(products), categories, brands, stats: rawStats }} />
       {/* dark hero band */}
       <section style={{ background: 'var(--ink)', color: 'var(--t-on-dark)', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle at 82% 18%, var(--accent-soft), transparent 42%)' }} />

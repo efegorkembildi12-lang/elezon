@@ -2,7 +2,7 @@
    B2B alternative to a cart: collect products for one batched price request.
    Persisted to localStorage. Ported from app.jsx rl logic. */
 
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 
 export interface RLItem {
   id: string;
@@ -25,6 +25,8 @@ const RequestListContext = createContext<RequestListValue | null>(null);
 const STORAGE_KEY = 'elezon_rl';
 
 function readInitial(): RLItem[] {
+  // Guard for SSG: localStorage doesn't exist during build-time rendering.
+  if (typeof localStorage === 'undefined') return [];
   try {
     const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
     return Array.isArray(parsed) ? parsed : [];
@@ -34,9 +36,21 @@ function readInitial(): RLItem[] {
 }
 
 export function RequestListProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<RLItem[]>(readInitial);
+  // Start empty so the first client render matches the prerendered HTML, then
+  // load the persisted list after hydration. Skip persisting on that first pass
+  // so the initial empty state never clobbers the stored list.
+  const [items, setItems] = useState<RLItem[]>([]);
+  const persistArmed = useRef(false);
 
   useEffect(() => {
+    setItems(readInitial());
+  }, []);
+
+  useEffect(() => {
+    if (!persistArmed.current) {
+      persistArmed.current = true;
+      return;
+    }
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
     } catch {

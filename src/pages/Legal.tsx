@@ -10,6 +10,9 @@ import { useLocation } from 'react-router-dom';
 import { PageHero } from '../components/PageHero';
 import { useGo } from '../lib/useGo';
 import { useI18n } from '../i18n/I18nContext';
+import { useCatalog } from '../store/CatalogProvider';
+import { Seo } from '../components/Seo';
+import { PageState } from '../lib/ssg/pageState';
 import { LEGAL_DOCS, LEGAL_INTRO, LEGAL_LABELS } from '../data/legal';
 
 function scrollToId(id: string) {
@@ -23,6 +26,7 @@ export function Legal() {
   const { lang } = useI18n();
   const go = useGo();
   const { hash } = useLocation();
+  const { categories, brands, stats } = useCatalog();
 
   const labels = LEGAL_LABELS[lang];
   const docs = LEGAL_DOCS[lang];
@@ -38,6 +42,8 @@ export function Legal() {
 
   return (
     <div className="rise">
+      <Seo title={labels.title} description={LEGAL_INTRO[lang].slice(0, 160)} />
+      <PageState data={{ products: [], categories, brands, stats }} />
       <PageHero eyebrow={labels.eyebrow} title={labels.title} sub={LEGAL_INTRO[lang]} />
       <section className="section">
         <div className="wrap" style={{ maxWidth: 860 }}>

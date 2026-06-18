@@ -4,9 +4,13 @@ import { Icon } from '../components/Icon';
 import { PageHero } from '../components/PageHero';
 import { QuoteCTA } from '../components/QuoteCTA';
 import { useI18n } from '../i18n/I18nContext';
+import { useCatalog } from '../store/CatalogProvider';
+import { Seo } from '../components/Seo';
+import { PageState } from '../lib/ssg/pageState';
 
 export function Delivery() {
   const { t } = useI18n();
+  const { categories, brands, stats } = useCatalog();
   const steps = [
     { n: '01', t: 'Запрос', d: 'Вы отправляете спецификацию или артикулы через форму, почту или по телефону.' },
     { n: '02', t: 'Расчёт', d: 'Подбираем позиции и аналоги, проверяем наличие, готовим коммерческое предложение.' },
@@ -15,6 +19,11 @@ export function Delivery() {
   ];
   return (
     <div className="rise">
+      <Seo
+        title="Доставка и оплата"
+        description="Условия доставки и оплаты ELEZON: отгрузка со склада в Москве за 24 ч, доставка по РФ и самовывоз, работа по договору с отсрочкой платежа для юридических лиц."
+      />
+      <PageState data={{ products: [], categories, brands, stats }} />
       <PageHero
         eyebrow="Доставка и оплата"
         title="Прозрачные условия для юридических лиц"
