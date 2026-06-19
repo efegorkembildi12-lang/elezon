@@ -28,7 +28,10 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          # Node 22+ ships a global WebSocket, which @supabase/supabase-js needs
+          # when the client is created during the build-time SSG render. On Node 20
+          # createClient throws ("Node.js 20 detected without native WebSocket").
+          node-version: 22
           cache: npm
 
       - run: npm ci
