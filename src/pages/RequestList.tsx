@@ -4,6 +4,7 @@
    printed (browser → Save as PDF). */
 
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Icon } from '../components/Icon';
 import { Breadcrumbs } from '../components/Breadcrumbs';
 import { fmt } from '../lib/format';
@@ -89,7 +90,7 @@ export function RequestList() {
   return (
     <div className="rise">
       <div className="no-print">
-        <Breadcrumbs items={[{ label: 'Главная', go: () => go('home') }, { label: 'Список запроса' }]} />
+        <Breadcrumbs items={[{ label: 'Главная', to: '/' }, { label: 'Список запроса' }]} />
         <div className="wrap" style={{ padding: '22px 32px 12px' }}>
           <div className="row" style={{ justifyContent: 'space-between', alignItems: 'flex-end', gap: 20, flexWrap: 'wrap' }}>
             <div className="col" style={{ gap: 10 }}>
@@ -131,10 +132,10 @@ export function RequestList() {
             </div>
             {rows.map((r, i) => (
               <div key={r.id} className="row request-row" style={{ gap: 16, padding: '16px 18px', borderBottom: i < rows.length - 1 ? '1px solid var(--line)' : 'none' }}>
-                <a href="#" onClick={(e) => { e.preventDefault(); go('product', r.p); }} className="ph no-print" style={{ width: 60, height: 60, borderRadius: 8, flex: '0 0 auto', overflow: 'hidden' }}><img src={`${import.meta.env.BASE_URL}images/prod-${r.p.cat}.png`} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /></a>
+                <Link to={`/product/${r.p.id}`} className="ph no-print" style={{ width: 60, height: 60, borderRadius: 8, flex: '0 0 auto', overflow: 'hidden' }}><img src={`${import.meta.env.BASE_URL}images/prod-${r.p.cat}.png`} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /></Link>
                 <div className="col" style={{ gap: 4, flex: 1, minWidth: 0 }}>
                   <span className="mono" style={{ fontSize: 11, color: 'var(--t-faint)' }}>{r.p.brand} · {r.p.article}</span>
-                  <a href="#" onClick={(e) => { e.preventDefault(); go('product', r.p); }} style={{ fontWeight: 600, fontSize: 14.5, color: 'var(--t-strong)' }}>{t(r.p.name)}</a>
+                  <Link to={`/product/${r.p.id}`} style={{ fontWeight: 600, fontSize: 14.5, color: 'var(--t-strong)' }}>{t(r.p.name)}</Link>
                   <span className={'chip ' + (r.p.stock === 'in' ? 'stock' : 'order')} style={{ alignSelf: 'flex-start', marginTop: 2 }}><span className="dot" />{r.p.stock === 'in' ? t('в наличии') : t('под заказ')}</span>
                 </div>
                 <span className="print-only mono" style={{ fontWeight: 700 }}>{r.qty} {t('шт')}</span>

@@ -1,17 +1,16 @@
-/* ELEZON — product card. Ported from shared.jsx. */
+/* ELEZON — product card. Real <Link> to the product page (crawlable). */
 
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Icon } from './Icon';
 import { StockNotifyForm } from './StockNotifyForm';
 import { fmt } from '../lib/format';
-import { useGo } from '../lib/useGo';
 import { useI18n } from '../i18n/I18nContext';
 import { productName, productImage } from '../lib/localize';
 import { useRequestList } from '../store/RequestListContext';
 import type { Product } from '../types';
 
 export function ProductCard({ p }: { p: Product }) {
-  const go = useGo();
   const { t, lang } = useI18n();
   const rl = useRequestList();
   const [hover, setHover] = useState(false);
@@ -19,12 +18,8 @@ export function ProductCard({ p }: { p: Product }) {
   const inList = rl.has(p.id);
 
   return (
-    <a
-      href="#"
-      onClick={(e) => {
-        e.preventDefault();
-        go('product', p);
-      }}
+    <Link
+      to={`/product/${p.id}`}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       className="card col"
@@ -104,6 +99,6 @@ export function ProductCard({ p }: { p: Product }) {
           <StockNotifyForm product={p} compact />
         </div>
       )}
-    </a>
+    </Link>
   );
 }

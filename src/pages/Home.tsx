@@ -4,7 +4,8 @@ import { Icon, catIcon } from '../components/Icon';
 import { ProductCard } from '../components/ProductCard';
 import { QuoteCTA } from '../components/QuoteCTA';
 import { SearchBox } from '../components/SearchBox';
-import { useGo } from '../lib/useGo';
+import { Link } from 'react-router-dom';
+import { routePath } from '../lib/useGo';
 import { useSiteStats } from '../lib/useSiteStats';
 import { useI18n } from '../i18n/I18nContext';
 import { useCatalog } from '../store/CatalogProvider';
@@ -12,6 +13,7 @@ import { categoryArt } from '../components/CategoryArt';
 import { Seo } from '../components/Seo';
 import { PageState } from '../lib/ssg/pageState';
 import { featuredRail } from '../lib/featured';
+import { organizationSchema, webSiteSchema } from '../lib/seo/schema';
 
 function BrandStrip({ dark }: { dark?: boolean }) {
   const { t } = useI18n();
@@ -60,7 +62,6 @@ function TrustBar() {
 }
 
 function ProductRail({ title, eyebrow }: { title: string; eyebrow: string }) {
-  const go = useGo();
   const { t } = useI18n();
   const { products } = useCatalog();
   const items = featuredRail(products);
@@ -72,7 +73,7 @@ function ProductRail({ title, eyebrow }: { title: string; eyebrow: string }) {
             <span className="eyebrow">{t(eyebrow)}</span>
             <h2 className="display" style={{ fontSize: 40 }}>{t(title)}</h2>
           </div>
-          <a href="#" onClick={(e) => { e.preventDefault(); go('catalog'); }} className="link-arrow">{t('Весь каталог')} <Icon.arrow width="18" height="18" /></a>
+          <Link to="/catalog" className="link-arrow">{t('Весь каталог')} <Icon.arrow width="18" height="18" /></Link>
         </div>
         <div className="prod-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 18 }}>
           {items.map((p) => <ProductCard key={p.id} p={p} />)}
@@ -83,13 +84,12 @@ function ProductRail({ title, eyebrow }: { title: string; eyebrow: string }) {
 }
 
 export function Home() {
-  const go = useGo();
   const { t } = useI18n();
   const { products, categories, brands, stats: rawStats } = useCatalog();
   const stats = useSiteStats();
   return (
     <div className="rise">
-      <Seo />
+      <Seo jsonLd={[organizationSchema(), webSiteSchema()]} />
       <PageState data={{ products: featuredRail(products), categories, brands, stats: rawStats }} />
       {/* dark hero band */}
       <section style={{ background: 'var(--ink)', color: 'var(--t-on-dark)', position: 'relative', overflow: 'hidden' }}>
@@ -133,7 +133,7 @@ export function Home() {
               const CI = catIcon[c.id];
               const Art = categoryArt[c.id];
               return (
-                <a key={c.id} href="#" onClick={(e) => { e.preventDefault(); go('category', c); }}
+                <Link key={c.id} to={routePath('category', c)}
                    className="card cat-card" style={{ padding: 0, overflow: 'hidden', display: 'grid', gridTemplateColumns: '1fr 1.1fr', minHeight: 230 }}>
                   <div className="col" style={{ padding: '30px 28px', gap: 14, justifyContent: 'space-between' }}>
                     <span style={{ width: 50, height: 50, borderRadius: 12, background: 'var(--ink)', color: 'var(--accent)', display: 'grid', placeItems: 'center' }}>{CI ? <CI width="26" height="26" /> : null}</span>
@@ -158,7 +158,7 @@ export function Home() {
                       </span>
                     ) : null}
                   </div>
-                </a>
+                </Link>
               );
             })}
           </div>

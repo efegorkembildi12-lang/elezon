@@ -1,7 +1,7 @@
 /* ELEZON — Product detail + quote modal. Ported from product.jsx. */
 
 import { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { Icon } from '../components/Icon';
 import { ProductCard } from '../components/ProductCard';
 import { StockNotifyForm } from '../components/StockNotifyForm';
@@ -14,6 +14,7 @@ import { useCatalog } from '../store/CatalogProvider';
 import { productName, productDesc, productSpecs, productImage, docUrl } from '../lib/localize';
 import { Seo } from '../components/Seo';
 import { PageState } from '../lib/ssg/pageState';
+import { productSchema, breadcrumbSchema } from '../lib/seo/schema';
 import type { Product as ProductType } from '../types';
 
 function QuoteForm({ p, onClose }: { p: ProductType | null; onClose: () => void }) {
@@ -90,12 +91,23 @@ export function Product() {
       <Seo
         title={`${productName(p, lang)} — ${p.brand}`}
         description={`${productName(p, lang)}, ${p.brand} (${p.article}). Оригинальное оборудование со склада в Москве, отгрузка 24 ч, для юридических лиц.`}
+        type="product"
+        image={productImage(p)}
+        jsonLd={[
+          productSchema(p, productDesc(p, lang) || `${productName(p, lang)} производства ${p.brand}.`, `/product/${p.id}`),
+          breadcrumbSchema([
+            { name: 'Главная', path: '/' },
+            { name: 'Каталог', path: '/catalog' },
+            ...(cat ? [{ name: cat.short, path: `/catalog/${cat.id}` }] : []),
+            { name: p.type },
+          ]),
+        ]}
       />
       <PageState data={{ products: [p, ...related], categories, brands, stats }} />
       <Breadcrumbs items={[
-        { label: 'Главная', go: () => go('home') },
-        { label: 'Каталог', go: () => go('catalog') },
-        ...(cat ? [{ label: cat.short, go: () => go('category', cat) }] : []),
+        { label: 'Главная', to: '/' },
+        { label: 'Каталог', to: '/catalog' },
+        ...(cat ? [{ label: cat.short, to: `/catalog/${cat.id}` }] : []),
         { label: p.type },
       ]} />
 
@@ -217,7 +229,7 @@ export function Product() {
         <div className="wrap">
           <div className="section-head">
             <h2 className="display" style={{ fontSize: 34 }}>{t('Похожие позиции')}</h2>
-            {cat && <a href="#" onClick={(e) => { e.preventDefault(); go('category', cat); }} className="link-arrow">{t('Вся категория')} <Icon.arrow width="18" height="18" /></a>}
+            {cat && <Link to={`/catalog/${cat.id}`} className="link-arrow">{t('Вся категория')} <Icon.arrow width="18" height="18" /></Link>}
           </div>
           <div className="prod-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 18 }}>
             {related.map((r) => <ProductCard key={r.id} p={r} />)}

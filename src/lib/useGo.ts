@@ -8,27 +8,29 @@ import type { Category, Product } from '../types';
 export type GoArg = Category | Product | null;
 export type Go = (route: string, arg?: GoArg) => void;
 
+/** Pure route-name → path mapping. Single source of truth, also used to build
+    real `<a href>`/`<Link to>` targets for crawlable internal links. */
+export function routePath(route: string, arg?: GoArg): string {
+  switch (route) {
+    case 'home': return '/';
+    case 'catalog': return '/catalog';
+    case 'category': return `/catalog/${(arg as Category).id}`;
+    case 'product': return `/product/${(arg as Product).id}`;
+    case 'company': return '/company';
+    case 'delivery': return '/delivery';
+    case 'contacts': return '/contacts';
+    case 'request': return '/request';
+    case 'faq': return '/faq';
+    case 'legal': return '/legal';
+    case 'privacy': return '/legal#privacy';
+    case 'terms': return '/legal#terms';
+    case 'cookies': return '/legal#cookies';
+    case 'consent': return '/legal#consent';
+    default: return '/';
+  }
+}
+
 export function useGo(): Go {
   const navigate = useNavigate();
-  return useCallback<Go>(
-    (route, arg) => {
-      switch (route) {
-        case 'home': navigate('/'); break;
-        case 'catalog': navigate('/catalog'); break;
-        case 'category': navigate(`/catalog/${(arg as Category).id}`); break;
-        case 'product': navigate(`/product/${(arg as Product).id}`); break;
-        case 'company': navigate('/company'); break;
-        case 'delivery': navigate('/delivery'); break;
-        case 'contacts': navigate('/contacts'); break;
-        case 'request': navigate('/request'); break;
-        case 'legal': navigate('/legal'); break;
-        case 'privacy': navigate('/legal#privacy'); break;
-        case 'terms': navigate('/legal#terms'); break;
-        case 'cookies': navigate('/legal#cookies'); break;
-        case 'consent': navigate('/legal#consent'); break;
-        default: navigate('/');
-      }
-    },
-    [navigate],
-  );
+  return useCallback<Go>((route, arg) => navigate(routePath(route, arg)), [navigate]);
 }

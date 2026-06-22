@@ -16,6 +16,7 @@ import { RequestList } from './pages/RequestList';
 import { Company } from './pages/Company';
 import { Delivery } from './pages/Delivery';
 import { Contacts } from './pages/Contacts';
+import { Faq } from './pages/Faq';
 import { Legal } from './pages/Legal';
 import { CookieConsent } from './components/CookieConsent';
 import { I18nProvider } from './i18n/I18nContext';
@@ -78,6 +79,7 @@ export const routes: RouteRecord[] = [
       { path: 'company', element: <Company /> },
       { path: 'delivery', element: <Delivery /> },
       { path: 'contacts', element: <Contacts /> },
+      { path: 'faq', element: <Faq /> },
       { path: 'legal', element: <Legal /> },
       { path: 'privacy', element: <Navigate to="/legal#privacy" replace /> },
       { path: '*', element: <Navigate to="/" replace /> },

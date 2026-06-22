@@ -7,6 +7,7 @@ import { useI18n } from '../i18n/I18nContext';
 import { useCatalog } from '../store/CatalogProvider';
 import { Seo } from '../components/Seo';
 import { PageState } from '../lib/ssg/pageState';
+import { localBusinessSchema } from '../lib/seo/schema';
 
 interface ContactItem {
   I: IconComponent;
@@ -32,6 +33,7 @@ export function Contacts() {
       <Seo
         title="Контакты"
         description="Контакты ELEZON: +7 (495) 147-47-61, info@elezon.ru, склад 121087, Москва, ул. Большая Филёвская, 4. Запрос цены и спецификации для юридических лиц."
+        jsonLd={localBusinessSchema()}
       />
       <PageState data={{ products: [], categories, brands, stats }} />
       <PageHero eyebrow="Контакты" title="Свяжитесь с нами" sub="Отправьте запрос или спецификацию — рассчитаем цену, сроки и подберём аналоги." />

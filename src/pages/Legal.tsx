@@ -6,9 +6,8 @@
    redirects here to #privacy. */
 
 import { useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { PageHero } from '../components/PageHero';
-import { useGo } from '../lib/useGo';
 import { useI18n } from '../i18n/I18nContext';
 import { useCatalog } from '../store/CatalogProvider';
 import { Seo } from '../components/Seo';
@@ -24,7 +23,6 @@ function scrollToId(id: string) {
 
 export function Legal() {
   const { lang } = useI18n();
-  const go = useGo();
   const { hash } = useLocation();
   const { categories, brands, stats } = useCatalog();
 
@@ -47,13 +45,12 @@ export function Legal() {
       <PageHero eyebrow={labels.eyebrow} title={labels.title} sub={LEGAL_INTRO[lang]} />
       <section className="section">
         <div className="wrap" style={{ maxWidth: 860 }}>
-          <a
-            href="#"
-            onClick={(e) => { e.preventDefault(); go('home'); }}
+          <Link
+            to="/"
             style={{ fontSize: 13.5, color: 'var(--t-muted)', textDecoration: 'none' }}
           >
             ← {labels.back}
-          </a>
+          </Link>
 
           {/* Table of contents */}
           <nav className="legal-toc card" aria-label={labels.contents}>

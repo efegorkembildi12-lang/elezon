@@ -2,11 +2,11 @@
    Ported from shared.jsx; navigation/active state derived from the router. */
 
 import { useState, type CSSProperties } from 'react';
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Icon } from './Icon';
 import { Logo } from './Logo';
 import { SearchBox } from './SearchBox';
-import { useGo } from '../lib/useGo';
+import { useGo, routePath } from '../lib/useGo';
 import { useI18n } from '../i18n/I18nContext';
 import { useRequestList } from '../store/RequestListContext';
 import type { Lang } from '../types';
@@ -90,16 +90,12 @@ export function Header() {
       {/* main bar */}
       <div className="wrap row" style={{ height: 70, gap: 28, justifyContent: 'space-between' }}>
         <div className="row" style={{ gap: 36 }}>
-          <Logo dark={dark} onClick={() => go('home')} />
+          <Logo dark={dark} />
           <nav className="row hide-sm" style={{ gap: 4 }}>
             {NAV.map((it) => (
-              <a
+              <Link
                 key={it.id}
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  go(it.id);
-                }}
+                to={routePath(it.id)}
                 className="row"
                 style={{
                   gap: 5, padding: '8px 13px', borderRadius: 7, fontSize: 14.5, fontWeight: 600,
@@ -107,7 +103,7 @@ export function Header() {
                 }}
               >
                 {t(it.label)}
-              </a>
+              </Link>
             ))}
           </nav>
         </div>
@@ -135,31 +131,23 @@ export function Header() {
       {open && (
         <div className="wrap col show-sm" style={{ paddingBottom: 16, gap: 4 }}>
           {NAV.map((it) => (
-            <a
+            <Link
               key={it.id}
-              href="#"
-              onClick={(e) => {
-                e.preventDefault();
-                go(it.id);
-                setOpen(false);
-              }}
+              to={routePath(it.id)}
+              onClick={() => setOpen(false)}
               style={{ padding: '11px 4px', fontWeight: 600, color: dark ? 'var(--t-on-dark)' : 'var(--t-strong)', borderBottom: `1px solid ${dark ? 'var(--ink-line)' : 'var(--line)'}` }}
             >
               {t(it.label)}
-            </a>
+            </Link>
           ))}
-          <a
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              go('request');
-              setOpen(false);
-            }}
+          <Link
+            to="/request"
+            onClick={() => setOpen(false)}
             style={{ padding: '11px 4px', fontWeight: 600, color: dark ? 'var(--t-on-dark)' : 'var(--t-strong)', borderBottom: `1px solid ${dark ? 'var(--ink-line)' : 'var(--line)'}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
           >
             <span className="row" style={{ gap: 8 }}><Icon.list width="17" height="17" /> {t('Список запроса')}</span>
             {rl.count > 0 && <span className="mono" style={{ background: 'var(--accent)', color: 'var(--accent-ink)', borderRadius: 9, minWidth: 20, textAlign: 'center', fontSize: 12, fontWeight: 700, padding: '1px 6px' }}>{rl.count}</span>}
-          </a>
+          </Link>
           <a href="tel:+74951474761" className="btn btn-accent" style={{ marginTop: 10, justifyContent: 'center' }}><Icon.phone width="16" height="16" /> +7 (495) 147-47-61</a>
         </div>
       )}

@@ -1,7 +1,7 @@
 /* ELEZON — Catalog & Category listing with horizontal filter bar. Ported from catalog.jsx. */
 
 import { useEffect, useState, type CSSProperties } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { Icon } from '../components/Icon';
 import { ProductCard } from '../components/ProductCard';
 import { Breadcrumbs, type Crumb } from '../components/Breadcrumbs';
@@ -13,6 +13,7 @@ import { productName } from '../lib/localize';
 import { useCatalog } from '../store/CatalogProvider';
 import { Seo } from '../components/Seo';
 import { PageState } from '../lib/ssg/pageState';
+import { breadcrumbSchema } from '../lib/seo/schema';
 
 function FilterChip({ label, count, active, onClick, dot }: { label: string; count?: number; active: boolean; onClick: () => void; dot?: boolean }) {
   const style: CSSProperties = {
@@ -78,8 +79,8 @@ export function Catalog() {
   const activeBrands = [...new Set(D.products.filter((p) => cats.length === 0 || cats.includes(p.cat)).map((p) => p.brand))];
   const title = category ? category.name : 'Каталог';
   const crumbs: Crumb[] = [
-    { label: 'Главная', go: () => go('home') },
-    { label: 'Каталог', go: category ? () => go('catalog') : undefined },
+    { label: 'Главная', to: '/' },
+    { label: 'Каталог', to: category ? '/catalog' : undefined },
   ];
   if (category) crumbs.push({ label: category.name });
 
@@ -96,6 +97,7 @@ export function Catalog() {
             ? category.desc
             : 'Каталог оборудования для автоматизации зданий, КИП, низковольтных систем и KNX. Оригинальные бренды, склад в Москве, отгрузка 24 ч, для юридических лиц.'
         }
+        jsonLd={breadcrumbSchema(crumbs.map((c) => ({ name: c.label, path: c.to })))}
       />
       <PageState data={{ products: pageProducts, categories: D.categories, brands: D.brands, stats: D.stats }} />
       <Breadcrumbs items={crumbs} />
@@ -187,7 +189,7 @@ export function Catalog() {
           ) : (
             <div className="col card" style={{ overflow: 'hidden' }}>
               {items.map((p, i) => (
-                <a key={p.id} href="#" onClick={(e) => { e.preventDefault(); go('product', p); }}
+                <Link key={p.id} to={`/product/${p.id}`}
                    className="row list-row" style={{ gap: 18, padding: '16px 18px', borderBottom: i < items.length - 1 ? '1px solid var(--line)' : 'none' }}>
                   <span className="ph" style={{ width: 64, height: 64, borderRadius: 8, flex: '0 0 auto', overflow: 'hidden' }}><img src={`${import.meta.env.BASE_URL}images/prod-${p.cat}.png`} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /></span>
                   <span className="col" style={{ gap: 4, flex: 1, minWidth: 0 }}>
@@ -196,7 +198,7 @@ export function Catalog() {
                   </span>
                   <span className={'chip ' + (p.stock === 'in' ? 'stock' : 'order')}><span className="dot" />{p.stock === 'in' ? `${p.qty} ${t('шт')}` : t('под заказ')}</span>
                   <span style={{ fontFamily: 'var(--f-mono)', fontWeight: 700, fontSize: 16, color: 'var(--t-strong)', minWidth: 120, textAlign: 'right' }}>{p.price != null ? `${fmt(p.price)} ₽` : <span style={{ fontSize: 13, color: 'var(--t-muted)', fontWeight: 600, fontFamily: 'var(--f-sans)' }}>{t('по запросу')}</span>}</span>
-                </a>
+                </Link>
               ))}
             </div>
           )}

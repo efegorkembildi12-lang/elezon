@@ -4,7 +4,7 @@
    recorded in localStorage; "Learn more" opens the cookie notice (/legal#cookies). */
 
 import { useState } from 'react';
-import { useGo } from '../lib/useGo';
+import { Link } from 'react-router-dom';
 import { useI18n } from '../i18n/I18nContext';
 import type { Lang } from '../types';
 
@@ -47,7 +47,6 @@ function readChoice(): ConsentRecord | null {
 
 export function CookieConsent() {
   const { lang } = useI18n();
-  const go = useGo();
   const [decided, setDecided] = useState<boolean>(() => readChoice() !== null);
 
   if (decided) return null;
@@ -69,13 +68,9 @@ export function CookieConsent() {
       <div className="cookie-bar__inner wrap">
         <p className="cookie-bar__text">
           {copy.text}{' '}
-          <a
-            href="#"
-            onClick={(e) => { e.preventDefault(); go('cookies'); }}
-            className="cookie-bar__link"
-          >
+          <Link to="/legal#cookies" className="cookie-bar__link">
             {copy.more}
-          </a>
+          </Link>
         </p>
         <div className="cookie-bar__actions">
           <button type="button" className="btn btn-ghost on-dark btn-sm" onClick={() => record('declined')}>

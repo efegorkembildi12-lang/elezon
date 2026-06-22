@@ -1,19 +1,12 @@
-/* ELEZON — wordmark logo. Ported from shared.jsx. */
+/* ELEZON — wordmark logo. Real <Link> to the homepage (crawlable). */
 
+import { Link } from 'react-router-dom';
 import { Icon } from './Icon';
 
-export function Logo({ dark, onClick }: { dark?: boolean; onClick?: () => void }) {
+export function Logo({ dark }: { dark?: boolean }) {
   const c = dark ? 'var(--t-on-dark)' : 'var(--t-strong)';
   return (
-    <a
-      href="#"
-      onClick={(e) => {
-        e.preventDefault();
-        onClick?.();
-      }}
-      className="row"
-      style={{ gap: 10, textDecoration: 'none' }}
-    >
+    <Link to="/" className="row" style={{ gap: 10, textDecoration: 'none' }} aria-label="ELEZON — на главную">
       <span
         style={{
           width: 30, height: 30, borderRadius: 7, background: 'var(--accent)',
@@ -25,6 +18,6 @@ export function Logo({ dark, onClick }: { dark?: boolean; onClick?: () => void }
       <span style={{ fontFamily: 'var(--f-display)', fontWeight: 700, fontSize: 21, letterSpacing: '-0.03em', color: c }}>
         ELEZON
       </span>
-    </a>
+    </Link>
   );
 }
